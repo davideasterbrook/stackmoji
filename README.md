@@ -1,4 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Emoji Shadows
+
+A multiplayer game built with Python (FastAPI) and Next.js.
+
+## Project Structure
+- `backend/` - Python/FastAPI backend server
+- `frontend/` - Next.js frontend application (coming soon)
+
+## Development
+
+### Backend
+1. Activate virtual environment:
+```bash
+source ~/venv/venv-3.12/bin/activate
+```
+
+2. Install dependencies:
+```bash
+cd backend
+pip install -r requirements.txt
+```
+
+3. Run the server:
+```bash
+uvicorn app.main:app --reload --port 8000
+```
+
+### Frontend
+(Coming soon)
 
 ## Getting Started
 

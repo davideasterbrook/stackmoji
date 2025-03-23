@@ -1,0 +1,110 @@
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Base theme colors */
+  --background: #ffffff;
+  --container-bg: #f1f5f9;
+  --text: #0f172a;
+  
+  /* Button states */
+  --button-bg: #e2e8f0;
+  --button-hover: #cbd5e1;
+  --button-disabled: #f1f5f9;
+  --text-disabled: #94a3b8;
+  
+  /* Status colors */
+  --success: #16a34a;
+  --error: #dc2626;
+
+  --theme-bg: #f8fafc;
+  --theme-panel: #f1f5f9;
+  --theme-button: #e2e8f0;
+  --theme-button-hover: #cbd5e1;
+  --theme-button-inactive: rgba(148, 163, 184, 0.5);
+  --theme-button-inactive-hover: rgba(148, 163, 184, 0.7);
+  --theme-button-disabled: rgba(148, 163, 184, 0.5);
+  --theme-text: #0f172a;
+  --theme-success: #22c55e;
+  --theme-error: #ef4444;
+}
+
+[data-theme='dark'] {
+  --background: #0f172a;
+  /* --container-bg: #0f172a; */
+  --text: #ffffff;
+  
+  --button-bg: #334155;
+  --button-hover: #475569;
+  --button-disabled: #1e293b;
+  --text-disabled: #475569;
+
+  --theme-bg: #0B0F19;  /* Dark blue-black background like Preline */
+  --theme-panel: #111827;  /* Slightly lighter panel background */
+  --theme-button: #1F2937;  /* Button color matching Preline's components */
+  --theme-button-hover: #374151;  /* Hover state from their interactive elements */
+  --theme-button-inactive: rgba(55, 65, 81, 0.5);  /* Muted version of their secondary colors */
+  --theme-button-inactive-hover: rgba(75, 85, 99, 0.5);  /* Lighter on hover */
+  --theme-button-disabled: rgba(31, 41, 55, 0.5);  /* Disabled state */
+  --theme-text: #F9FAFB;  /* Bright but not pure white text for better readability */
+  --theme-success: #22c55e;  /* Keep success color */
+  --theme-error: #ef4444;  /* Keep error color */
+}
+
+/* Theme classes */
+.theme-container {
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+}
+
+.theme-panel {
+  background-color: var(--theme-panel);
+}
+
+.theme-button {
+  background-color: var(--theme-button);
+  color: var(--theme-text);
+}
+
+.theme-button-hover:hover {
+  background-color: var(--theme-button-hover);
+}
+
+.theme-button-inactive {
+  background-color: var(--theme-button-inactive);
+}
+
+.theme-button-inactive-hover:hover {
+  background-color: var(--theme-button-inactive-hover);
+}
+
+.theme-button-disabled {
+  background-color: var(--theme-button-disabled);
+  color: var(--theme-button-inactive);
+  cursor: not-allowed;
+}
+
+.success-bg {
+  background-color: var(--theme-success);
+}
+
+.error-bg {
+  background-color: var(--theme-error);
+}
+
+body {
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+  min-height: 100vh;
+}
+
+/* Add any existing animation keyframes or other CSS here */
+
+/* Add classes that use the CSS variables */
+.theme-container {
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+}
+
