@@ -22,7 +22,8 @@ export default function ResultsModal({
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
       <div className="bg-[#1a1f2e] rounded-2xl p-6 max-w-sm w-full">
-        {/* Result Emoji */}
+
+        {/* Result Emoji - Only show win/lose emoji */}
         <div className="text-center text-6xl mb-6">
           {hasWon ? '🎉' : '😢'}
         </div>
@@ -32,8 +33,13 @@ export default function ResultsModal({
           {guessHistory.map((guess, i) => (
             <div key={i} className="flex justify-center gap-1">
               {guess.map((emoji, j) => (
-                <div key={j} className="text-2xl">
-                  {correctEmojis.has(emoji) ? '🟩' : '🟥'}
+                <div 
+                  key={j} 
+                  className={`w-12 h-12 flex items-center justify-center text-2xl rounded-xl ${
+                    correctEmojis.has(emoji) ? 'bg-[var(--theme-success)]' : 'bg-[var(--theme-error)]'
+                  }`}
+                >
+                  {emoji}
                 </div>
               ))}
             </div>

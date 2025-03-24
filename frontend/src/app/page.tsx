@@ -40,6 +40,7 @@ function useTimeUntilMidnightUTC() {
 
 export default function Home() {
   const [dailyGame, setDailyGame] = useState<DailyGame | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedEmojis, setSelectedEmojis] = useState<string[]>([]);
   const [revealedEmojis, setRevealedEmojis] = useState<Set<string>>(new Set());
   const [incorrectEmojis, setIncorrectEmojis] = useState<Set<string>>(new Set());
@@ -54,6 +55,7 @@ export default function Home() {
   useEffect(() => {
     const fetchDailyGame = async () => {
       try {
+        setIsLoading(true);
         // Check if we have cached data
         const cached = localStorage.getItem('dailyGame');
         const lastFetch = localStorage.getItem('lastFetchTime');
@@ -88,9 +90,22 @@ export default function Home() {
         localStorage.setItem('dailyGame', JSON.stringify(gameData));
         localStorage.setItem('lastFetchTime', now.getTime().toString());
         
+        // Reset game state when new game is loaded
+        localStorage.removeItem('gameState');
+        setSelectedEmojis([]);
+        setRevealedEmojis(new Set());
+        setIncorrectEmojis(new Set());
+        setGuessHistory([]);
+        setAttemptsLeft(3);
+        setIsGameComplete(false);
+        setHasWon(false);
+        setHiddenShadows(new Set());
+        
         setDailyGame(gameData);
       } catch (error) {
         console.error('Failed to fetch daily game:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -219,21 +234,44 @@ export default function Home() {
       .then(() => alert('🤷‍♂️'));
   };
 
+  if (isLoading) {
+    return (
+      <main className="h-screen w-screen p-4 flex items-center justify-center overflow-hidden theme-container">
+        <div className="text-4xl animate-bounce">🎮</div>
+      </main>
+    );
+  }
+
   if (!dailyGame) return null;
 
   return (
     <main className="h-screen w-screen p-4 flex items-center justify-center overflow-hidden theme-container">
-      <button
-        onClick={() => setIsDarkMode(!isDarkMode)}
-        className="absolute top-4 left-4 w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
-      >
-        {isDarkMode ? '☀️' : '🌙'}
-      </button>
+      <div className="absolute top-4 left-4 flex gap-2">
+        <button
+          onClick={() => setIsDarkMode(!isDarkMode)}
+          className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
+        >
+          {isDarkMode ? '☀️' : '🌙'}
+        </button>
+        
+        {process.env.NODE_ENV === 'development' && (
+          <button
+            onClick={() => {
+              localStorage.removeItem('dailyGame');
+              localStorage.removeItem('lastFetchTime');
+              localStorage.removeItem('gameState');
+              window.location.reload();
+            }}
+            className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
+            title="Dev: Reset Game"
+          >
+            🔄
+          </button>
+        )}
+      </div>
 
       <div className="w-full max-w-2xl h-full flex flex-col gap-2">
-        <div className={`rounded-2xl p-4 theme-panel ${
-          isGameComplete ? 'h-[60%]' : 'h-[40%]'
-        }`}>
+        <div className="rounded-2xl p-4 theme-panel h-[40%]">
           <ShadowDisplay 
             emojis={dailyGame?.answer || []} 
             revealedEmojis={revealedEmojis}
@@ -242,167 +280,155 @@ export default function Home() {
           />
         </div>
 
-        {isGameComplete ? (
-          <div className="flex-1 rounded-2xl p-4 flex flex-col gap-4 theme-panel">
-            <div className="flex justify-center gap-2 mb-4">
-              {(hasWon ? guessHistory[guessHistory.length - 1] : (() => {
-                const lastGuess = guessHistory[guessHistory.length - 1];
-                const answer = [...dailyGame.answer];
-                const reorderedAnswer = new Array(answer.length).fill('');
+        <div className="theme-panel rounded-2xl p-4 h-[10%]">
+          <div className="relative flex justify-center items-center h-full">
+            <div className="flex gap-2">
+              {Array(dailyGame.required_count).fill(null).map((_, index) => {
+                const finalEmoji = isGameComplete ? 
+                  (hasWon ? guessHistory[guessHistory.length - 1] : dailyGame.answer)[index] : 
+                  selectedEmojis[index];
                 
-                lastGuess.forEach((emoji, index) => {
-                  if (dailyGame.answer.includes(emoji)) {
-                    reorderedAnswer[index] = emoji;
-                    const answerIndex = answer.indexOf(emoji);
-                    if (answerIndex !== -1) {
-                      answer.splice(answerIndex, 1);
-                    }
-                  }
-                });
-                
-                let answerIndex = 0;
-                reorderedAnswer.forEach((emoji, index) => {
-                  if (!emoji && answerIndex < answer.length) {
-                    reorderedAnswer[index] = answer[answerIndex];
-                    answerIndex++;
-                  }
-                });
-                
-                return reorderedAnswer;
-              })()).map((emoji, index) => (
-                <div 
-                  key={index}
-                  onClick={() => {
-                    setHiddenShadows(prev => {
-                      const newHidden = new Set(prev);
-                      if (newHidden.has(emoji)) {
-                        newHidden.delete(emoji);
-                      } else {
-                        newHidden.add(emoji);
-                      }
-                      return newHidden;
-                    });
-                  }}
-                  className={`w-12 h-12 flex items-center justify-center text-2xl bg-green-600 
-                    rounded-xl cursor-pointer hover:bg-green-500 transition-colors
-                    ${hiddenShadows.has(emoji) ? 'opacity-50' : ''}`}
-                >
-                  {emoji}
-                </div>
-              ))}
-            </div>
-
-            <div className="flex-1 flex flex-col gap-2 items-center">
-              {[...guessHistory].reverse().map((guess, i) => (
-                <div key={i} className="flex gap-1">
-                  {guess.map((emoji, j) => (
-                    <div 
-                      key={j}
-                      className={`w-12 h-12 flex items-center justify-center text-2xl rounded-xl ${
-                        dailyGame.answer.includes(emoji) ? 'bg-green-600' : 'bg-red-600'
-                      }`}
-                    >
-                      {emoji}
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-
-            <div className="flex gap-4 items-center">
-              <div className="flex-1 text-center text-lg flex flex-col gap-1">
-                <div>⏭️ 🎮</div>
-                <div>{timeUntilMidnight}</div>
-              </div>
-
-              <button
-                onClick={handleShare}
-                className="flex-1 h-12 rounded-xl text-xl theme-button hover:theme-button-hover transition-colors"
-              >
-                📋
-              </button>
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="theme-panel rounded-2xl p-4">
-              <div className="relative flex justify-center items-center">
-                <div className="flex gap-2">
-                  {Array(dailyGame.required_count).fill(null).map((_, index) => (
-                    <div 
-                      key={index}
-                      onClick={() => {
-                        if (selectedEmojis[index] && !revealedEmojis.has(selectedEmojis[index])) {
-                          const newSelectedEmojis = [...selectedEmojis];
-                          newSelectedEmojis[index] = '';
-                          setSelectedEmojis(newSelectedEmojis);
-                        }
-                      }}
-                      className={`w-12 h-12 flex items-center justify-center text-2xl 
-                        ${revealedEmojis.has(selectedEmojis[index]) ? 'success-bg' : 
-                          selectedEmojis[index] ? 'theme-button hover:theme-button-hover' : 'theme-button-inactive'} 
-                        rounded-xl transition-colors`}
-                    >
-                      {selectedEmojis[index] || '❓'}
-                    </div>
-                  ))}
-                </div>
-
-                {selectedEmojis.some(emoji => emoji && !revealedEmojis.has(emoji)) && (
-                  <button
+                return (
+                  <div 
+                    key={index}
                     onClick={() => {
-                      // Keep revealed emojis, clear only non-revealed ones
-                      const newSelectedEmojis = selectedEmojis.map(emoji => 
-                        revealedEmojis.has(emoji) ? emoji : ''
-                      );
-                      setSelectedEmojis(newSelectedEmojis);
+                      if (isGameComplete) {
+                        setHiddenShadows(prev => {
+                          const newHidden = new Set(prev);
+                          if (newHidden.has(finalEmoji)) {
+                            newHidden.delete(finalEmoji);
+                          } else {
+                            newHidden.add(finalEmoji);
+                          }
+                          return newHidden;
+                        });
+                      } else if (finalEmoji && !revealedEmojis.has(finalEmoji)) {
+                        const newSelectedEmojis = [...selectedEmojis];
+                        newSelectedEmojis[index] = '';
+                        setSelectedEmojis(newSelectedEmojis);
+                      }
                     }}
-                    className="absolute right-0 w-12 h-12 flex items-center justify-center text-2xl theme-button hover:theme-button-hover rounded-xl transition-colors"
+                    className={`w-12 h-12 flex items-center justify-center text-2xl rounded-xl transition-colors border border-[var(--theme-border)]
+                      ${isGameComplete ? 
+                        `bg-[var(--theme-success)] cursor-pointer hover:bg-[var(--theme-success)] border-none
+                         ${hiddenShadows.has(finalEmoji) ? 'opacity-50' : ''}` : 
+                        `${revealedEmojis.has(finalEmoji) ? 'success-bg border-none' : 
+                          finalEmoji ? 'theme-button hover:theme-button-hover' : 'bg-transparent hover:bg-opacity-10 hover:theme-button-inactive-hover'}`
+                      }`}
                   >
-                    🔄
-                  </button>
-                )}
-              </div>
+                    {finalEmoji || '❓'}
+                  </div>
+                );
+              })}
             </div>
 
-            <div className="theme-panel rounded-2xl p-4">
+            {/* Reset button */}
+            {!isGameComplete && selectedEmojis.some(emoji => emoji && !revealedEmojis.has(emoji)) && (
+              <button
+                onClick={() => {
+                  // Keep revealed emojis, clear only non-revealed ones
+                  const newSelectedEmojis = selectedEmojis.map(emoji => 
+                    revealedEmojis.has(emoji) ? emoji : ''
+                  );
+                  setSelectedEmojis(newSelectedEmojis);
+                }}
+                className="absolute right-0 w-12 h-12 flex items-center justify-center text-2xl theme-button hover:theme-button-hover rounded-xl transition-colors"
+              >
+                🔄
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="theme-panel rounded-2xl p-4 h-[50%]">
+          {/* Emoji Grid and Guess Button */}
+          {!isGameComplete && (
+            <div className="h-full flex flex-col justify-between">
               <div className="grid grid-cols-5 gap-1 w-fit mx-auto">
                 {dailyGame.options.map((emoji, index) => (
                   <button
                     key={index}
                     onClick={() => handleEmojiSelect(emoji)}
                     disabled={revealedEmojis.has(emoji) || incorrectEmojis.has(emoji)}
-                    className={`w-12 h-12 flex items-center justify-center text-2xl rounded-xl transition-colors ${
+                    className={`w-12 h-12 flex items-center justify-center text-2xl rounded-xl transition-colors border border-[var(--theme-border)] ${
                       revealedEmojis.has(emoji)
-                        ? 'success-bg'
+                        ? 'success-bg border-none'
                         : incorrectEmojis.has(emoji)
-                        ? 'error-bg'
+                        ? 'error-bg border-none'
                         : selectedEmojis.includes(emoji)
-                        ? 'theme-button hover:theme-button-hover'
-                        : 'theme-button-inactive hover:theme-button-inactive-hover'
+                        ? 'theme-button hover:theme-button-hover border border-[var(--theme-border)]'
+                        : 'bg-transparent hover:bg-opacity-10 hover:theme-button-inactive-hover'
                     }`}
                   >
                     {emoji}
                   </button>
                 ))}
               </div>
-            </div>
 
-            <div className="theme-panel rounded-2xl p-4">
               <button
                 onClick={handleCheckSolution}
                 disabled={selectedEmojis.length !== dailyGame?.required_count || selectedEmojis.includes('')}
-                className={`h-12 rounded-xl text-3xl transition-colors w-[calc(12rem+1rem)] mx-auto block ${
+                className={`h-12 rounded-xl text-3xl transition-colors w-[calc(12rem+1rem)] mx-auto border border-[var(--theme-border)] ${
                   selectedEmojis.length === dailyGame?.required_count && !selectedEmojis.includes('')
                     ? 'theme-button hover:theme-button-hover'
-                    : 'theme-button-disabled'
+                    : 'bg-transparent disabled:opacity-25 disabled:cursor-not-allowed'
                 }`}
               >
                 {'💔'.repeat(3 - attemptsLeft) + '❤️'.repeat(attemptsLeft)}
               </button>
             </div>
-          </>
-        )}
+          )}
+
+          {/* Guess History */}
+          {isGameComplete && (
+            <div className="h-full flex flex-col gap-4">
+              <div className="flex-1 flex flex-col gap-2 items-center overflow-y-auto">
+                {[...guessHistory].reverse().map((guess, i) => (
+                  <div key={i} className="flex gap-1">
+                    {guess.map((emoji, j) => (
+                      <div 
+                        key={j}
+                        className={`w-12 h-12 flex items-center justify-center text-2xl rounded-xl ${
+                          dailyGame.answer.includes(emoji) ? 'bg-[var(--theme-success)]' : 'bg-[var(--theme-error)]'
+                        }`}
+                      >
+                        {emoji}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-4 items-center mt-4">
+                <div className="flex-1 text-center text-lg flex flex-col gap-1">
+                  <div>⏭️ 🎮</div>
+                  <div>{timeUntilMidnight}</div>
+                </div>
+                <button
+                  onClick={handleShare}
+                  className="flex-1 h-12 rounded-xl text-xl theme-button hover:theme-button-hover transition-colors flex items-center justify-center"
+                >
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    width="24" 
+                    height="24" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="18" cy="5" r="3"/>
+                    <circle cx="6" cy="12" r="3"/>
+                    <circle cx="18" cy="19" r="3"/>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );

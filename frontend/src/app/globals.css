@@ -3,6 +3,17 @@
 @tailwind components;
 @tailwind utilities;
 
+
+
+/* 
+Theme colors:
+#6ca965 - green
+#9d4646 - red
+
+
+Dark theme:
+*/
+
 :root {
   /* Base theme colors */
   --background: #ffffff;
@@ -16,23 +27,25 @@
   --text-disabled: #94a3b8;
   
   /* Status colors */
-  --success: #16a34a;
-  --error: #dc2626;
+  --success: #6ca965;
+  --error: #9d4646;
 
+  /* Theme colors */
   --theme-bg: #f8fafc;
   --theme-panel: #f1f5f9;
-  --theme-button: #e2e8f0;
+  --theme-button: #dae5f2;
   --theme-button-hover: #cbd5e1;
   --theme-button-inactive: rgba(148, 163, 184, 0.5);
   --theme-button-inactive-hover: rgba(148, 163, 184, 0.7);
-  --theme-button-disabled: rgba(148, 163, 184, 0.5);
-  --theme-text: #0f172a;
-  --theme-success: #22c55e;
-  --theme-error: #ef4444;
+  --theme-button-disabled: #94a3b8;
+  --theme-text: #3d4654;
+  --theme-success: var(--success);  /* Updated to use base color */
+  --theme-error: var(--error);      /* Updated to use base color */
+  --theme-border: #c8cfd7;
 }
 
 [data-theme='dark'] {
-  --background: #0f172a;
+  /* --background: #2f3640; */
   /* --container-bg: #0f172a; */
   --text: #ffffff;
   
@@ -41,16 +54,15 @@
   --button-disabled: #1e293b;
   --text-disabled: #475569;
 
-  --theme-bg: #0B0F19;  /* Dark blue-black background like Preline */
-  --theme-panel: #111827;  /* Slightly lighter panel background */
-  --theme-button: #1F2937;  /* Button color matching Preline's components */
+  --theme-bg: #181c21;
+  --theme-panel: #252a32;
+  --theme-button: #3d4654;
   --theme-button-hover: #374151;  /* Hover state from their interactive elements */
   --theme-button-inactive: rgba(55, 65, 81, 0.5);  /* Muted version of their secondary colors */
   --theme-button-inactive-hover: rgba(75, 85, 99, 0.5);  /* Lighter on hover */
-  --theme-button-disabled: rgba(31, 41, 55, 0.5);  /* Disabled state */
-  --theme-text: #F9FAFB;  /* Bright but not pure white text for better readability */
-  --theme-success: #22c55e;  /* Keep success color */
-  --theme-error: #ef4444;  /* Keep error color */
+  --theme-button-disabled: #475569;  /* Add this line for dark mode */
+  --theme-text: #c8cfd7;  /* Bright but not pure white text for better readability */
+  --theme-border: #3d4654;  /* Add this line for dark mode border color */
 }
 
 /* Theme classes */
