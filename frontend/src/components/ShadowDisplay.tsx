@@ -1,17 +1,15 @@
 'use client';
 
-interface ShadowDisplayProps {
-  emojis: string[];
-  revealedEmojis: Set<string>;
-  isGameComplete: boolean;
-  hiddenShadows: Set<string>;
-}
+import type { ShadowDisplayProps } from '@/types';
 
-export default function ShadowDisplay({ emojis, hiddenShadows }: ShadowDisplayProps) {
+export default function ShadowDisplay({ 
+  emojis = [], 
+  hiddenEmojis = new Set(),
+}: Pick<ShadowDisplayProps, 'emojis' | 'hiddenEmojis'>) {
   return (
     <div className="w-full h-full flex items-center justify-center">
-      {emojis.map((emoji, index) => (
-        !hiddenShadows.has(emoji) && (
+      {(emojis || []).map((emoji, index) => (
+        !hiddenEmojis.has(emoji) && (
           <div
             key={index}
             className="absolute"

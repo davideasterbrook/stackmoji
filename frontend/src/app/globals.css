@@ -29,6 +29,7 @@ Dark theme:
   /* Status colors */
   --success: #6ca965;
   --error: #9d4646;
+  --hint: #c8b653;
 
   /* Theme colors */
   --theme-bg: #f8fafc;
@@ -41,6 +42,7 @@ Dark theme:
   --theme-text: #3d4654;
   --theme-success: var(--success);  /* Updated to use base color */
   --theme-error: var(--error);      /* Updated to use base color */
+  --theme-hint: var(--hint);      /* Add theme hint color */
   --theme-border: #c8cfd7;
 }
 

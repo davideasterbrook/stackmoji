@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import ShadowDisplay from '@/components/ShadowDisplay';
-import { DailyGame } from '@/types';
+import { DailyGame, GameState, GuessData, HintData } from '@/types';
+import SelectedEmojisDisplay from '@/components/SelectedEmojisDisplay';
+import GameControls from '@/components/GameControls';
+import GuessHistory from '@/components/GuessHistory';
 
 
 function useTimeUntilMidnightUTC() {
@@ -49,8 +52,34 @@ export default function Home() {
   const [isGameComplete, setIsGameComplete] = useState(false);
   const [hasWon, setHasWon] = useState(false);
   const timeUntilMidnight = useTimeUntilMidnightUTC();
-  const [hiddenShadows, setHiddenShadows] = useState<Set<string>>(new Set());
+  const [hiddenEmojis, setHiddenEmojis] = useState<Set<string>>(new Set());
+  const [streak, setStreak] = useState<number>(0);
+
+  // Initialize with a default value
   const [isDarkMode, setIsDarkMode] = useState(true);
+
+  // Move the theme detection to a useEffect
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setIsDarkMode(savedTheme === 'dark');
+    } else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setIsDarkMode(prefersDark);
+    }
+  }, []);
+
+  const [guesses, setGuesses] = useState<GuessData[]>([]);
+  const [hints, setHints] = useState<HintData[]>([]);
+
+  useEffect(() => {
+    const savedStreak = localStorage.getItem('streak');
+    setStreak(Number(savedStreak) || 0);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('streak', streak.toString());
+  }, [streak]);
 
   useEffect(() => {
     const fetchDailyGame = async () => {
@@ -86,20 +115,24 @@ export default function Home() {
           required_count: data.answer.length
         };
 
-        // Save to localStorage
-        localStorage.setItem('dailyGame', JSON.stringify(gameData));
-        localStorage.setItem('lastFetchTime', now.getTime().toString());
-        
-        // Reset game state when new game is loaded
+        // Only reset game state when we get a new game
         localStorage.removeItem('gameState');
-        setSelectedEmojis([]);
         setRevealedEmojis(new Set());
         setIncorrectEmojis(new Set());
         setGuessHistory([]);
         setAttemptsLeft(3);
         setIsGameComplete(false);
         setHasWon(false);
-        setHiddenShadows(new Set());
+        setHiddenEmojis(new Set());
+        setGuesses([]);
+        setHints([]);
+        
+        // Initialize selectedEmojis with empty strings based on required count
+        setSelectedEmojis(new Array(gameData.required_count).fill(''));
+        
+        // Save to localStorage
+        localStorage.setItem('dailyGame', JSON.stringify(gameData));
+        localStorage.setItem('lastFetchTime', now.getTime().toString());
         
         setDailyGame(gameData);
       } catch (error) {
@@ -114,20 +147,39 @@ export default function Home() {
 
   useEffect(() => {
     document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+    // Save theme preference to localStorage
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
+
+  // Optional: Listen for system theme changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      // Only update if user hasn't set a preference
+      if (!localStorage.getItem('theme')) {
+        setIsDarkMode(e.matches);
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   // Load saved game state
   useEffect(() => {
     const savedState = localStorage.getItem('gameState');
     if (savedState) {
-      const state = JSON.parse(savedState);
+      const state: GameState = JSON.parse(savedState);
       setSelectedEmojis(state.selectedEmojis);
       setRevealedEmojis(new Set(state.revealedEmojis));
       setIncorrectEmojis(new Set(state.incorrectEmojis));
-      setGuessHistory(state.guessHistory);
+      setGuesses(state.guesses || []);  // Ensure we have an empty array if guesses is undefined
+      setHints(state.hints || []);      // Ensure we have an empty array if hints is undefined
+      setGuessHistory((state.guesses || []).map((g: GuessData) => g.emojis));  // Ensure we have an empty array if guesses is undefined
       setAttemptsLeft(state.attemptsLeft);
       setIsGameComplete(state.isGameComplete);
       setHasWon(state.hasWon);
+      setHiddenEmojis(new Set(state.hiddenEmojis || []));
     }
   }, []);
 
@@ -135,18 +187,20 @@ export default function Home() {
   useEffect(() => {
     if (!dailyGame) return;
 
-    const gameState = {
+    const gameState: GameState = {
       selectedEmojis,
       revealedEmojis: Array.from(revealedEmojis),
       incorrectEmojis: Array.from(incorrectEmojis),
-      guessHistory,
+      guesses: guesses,
+      hints: hints,
       attemptsLeft,
       isGameComplete,
-      hasWon
+      hasWon,
+      hiddenEmojis: Array.from(hiddenEmojis)
     };
     
     localStorage.setItem('gameState', JSON.stringify(gameState));
-  }, [selectedEmojis, revealedEmojis, incorrectEmojis, guessHistory, attemptsLeft, isGameComplete, hasWon, dailyGame]);
+  }, [selectedEmojis, revealedEmojis, incorrectEmojis, attemptsLeft, isGameComplete, hasWon, dailyGame, hiddenEmojis, guesses, hints]);
 
   const handleEmojiSelect = (emoji: string) => {
     if (revealedEmojis.has(emoji) || incorrectEmojis.has(emoji)) return;
@@ -175,6 +229,17 @@ export default function Home() {
   const handleCheckSolution = () => {
     if (!dailyGame || selectedEmojis.length !== dailyGame.required_count) return;
 
+    // Create new guess data
+    const newGuess: GuessData = {
+      emojis: [...selectedEmojis],
+      timestamp: Date.now(),
+      guessNumber: guesses.length + 1
+    };
+
+    // Update new state management
+    setGuesses(prev => [...prev, newGuess]);
+
+    // Update existing state management
     const currentGuess = [...selectedEmojis];
     setGuessHistory(prev => [...prev, currentGuess]);
 
@@ -211,9 +276,14 @@ export default function Home() {
     if (correctCount === dailyGame.required_count) {
       setIsGameComplete(true);
       setHasWon(true);
+      // Increment streak on win
+      const newStreak = streak + 1;
+      setStreak(newStreak);
     } else if (newAttemptsLeft === 0) {
       setIsGameComplete(true);
       setHasWon(false);
+      // Reset streak on loss
+      setStreak(0);
     }
   };
 
@@ -221,22 +291,82 @@ export default function Home() {
     if (!dailyGame) return;
     
     const resultEmojis = guessHistory
-      .map(guess => 
-        guess.map(emoji => 
-          dailyGame.answer.includes(emoji) ? '🟩' : '🟥'
-        ).join('')
+      .map((guess, guessIndex) => 
+        guess.map(emoji => {
+          if (dailyGame.answer.includes(emoji)) {
+            // Check if this emoji was hinted before this guess
+            const wasHinted = hints.some(h => h.emoji === emoji && h.usedAtGuessNumber <= guessIndex);
+            return wasHinted ? '🟧' : '🟩';
+          }
+          return '🟥';
+        }).join('')
       )
       .join('\n');
 
     const text = `${hasWon ? guessHistory.length : 'X'}/${3}\n\n${resultEmojis}`;
     
-    navigator.clipboard.writeText(text)
-      .then(() => alert('🤷‍♂️'));
+    navigator.clipboard.writeText(text);
+  };
+
+  const handleToggleHidden = (emoji: string) => {
+    if (!isGameComplete) {
+      // During gameplay
+      if (revealedEmojis.has(emoji)) {
+        if (hints.some(h => h.emoji === emoji)) {
+          // For already hinted emojis, just toggle visibility
+          setHiddenEmojis(prev => {
+            const newHidden = new Set(prev);
+            if (newHidden.has(emoji)) {
+              newHidden.delete(emoji);
+            } else {
+              newHidden.add(emoji);
+            }
+            return newHidden;
+          });
+        } else {
+          // For revealed but not hinted emojis, mark as hint and hide
+          setHints(prev => [...prev, {
+            emoji,
+            usedAtGuessNumber: guesses.length,
+            timestamp: Date.now()
+          }]);
+          setHiddenEmojis(prev => new Set([...prev, emoji]));
+        }
+      }
+    } else {
+      // After game completion, just toggle visibility
+      setHiddenEmojis(prev => {
+        const newHidden = new Set(prev);
+        if (newHidden.has(emoji)) {
+          newHidden.delete(emoji);
+        } else {
+          newHidden.add(emoji);
+        }
+        return newHidden;
+      });
+    }
+  };
+
+  const handleRemoveEmoji = (index: number) => {
+    const newSelectedEmojis = [...selectedEmojis];
+    newSelectedEmojis[index] = '';
+    setSelectedEmojis(newSelectedEmojis);
+  };
+
+  const handleReset = () => {
+    // Keep revealed emojis, clear only non-revealed ones
+    const newSelectedEmojis = selectedEmojis.map(emoji => 
+      revealedEmojis.has(emoji) ? emoji : ''
+    );
+    setSelectedEmojis(newSelectedEmojis);
   };
 
   if (isLoading) {
     return (
-      <main className="h-screen w-screen p-4 flex items-center justify-center overflow-hidden theme-container">
+      <main 
+        className="h-screen w-screen p-4 flex items-center justify-center overflow-hidden theme-container" 
+        data-theme={isDarkMode ? 'dark' : 'light'}
+      >
         <div className="text-4xl animate-bounce">🎮</div>
       </main>
     );
@@ -257,9 +387,19 @@ export default function Home() {
         {process.env.NODE_ENV === 'development' && (
           <button
             onClick={() => {
+              // Save current streak
+              const currentStreak = localStorage.getItem('streak');
+              
+              // Clear game data
               localStorage.removeItem('dailyGame');
               localStorage.removeItem('lastFetchTime');
               localStorage.removeItem('gameState');
+              
+              // Restore streak
+              if (currentStreak) {
+                localStorage.setItem('streak', currentStreak);
+              }
+              
               window.location.reload();
             }}
             className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
@@ -272,161 +412,49 @@ export default function Home() {
 
       <div className="w-full max-w-2xl h-full flex flex-col gap-2">
         <div className="rounded-2xl p-4 theme-panel h-[40%]">
-          <ShadowDisplay 
-            emojis={dailyGame?.answer || []} 
-            revealedEmojis={revealedEmojis}
-            isGameComplete={isGameComplete}
-            hiddenShadows={hiddenShadows}
+          <ShadowDisplay
+            emojis={dailyGame.answer}
+            hiddenEmojis={hiddenEmojis}
           />
         </div>
 
         <div className="theme-panel rounded-2xl p-4 h-[10%]">
-          <div className="relative flex justify-center items-center h-full">
-            <div className="flex gap-2">
-              {Array(dailyGame.required_count).fill(null).map((_, index) => {
-                const finalEmoji = isGameComplete ? 
-                  (hasWon ? guessHistory[guessHistory.length - 1] : dailyGame.answer)[index] : 
-                  selectedEmojis[index];
-                
-                return (
-                  <div 
-                    key={index}
-                    onClick={() => {
-                      if (isGameComplete) {
-                        setHiddenShadows(prev => {
-                          const newHidden = new Set(prev);
-                          if (newHidden.has(finalEmoji)) {
-                            newHidden.delete(finalEmoji);
-                          } else {
-                            newHidden.add(finalEmoji);
-                          }
-                          return newHidden;
-                        });
-                      } else if (finalEmoji && !revealedEmojis.has(finalEmoji)) {
-                        const newSelectedEmojis = [...selectedEmojis];
-                        newSelectedEmojis[index] = '';
-                        setSelectedEmojis(newSelectedEmojis);
-                      }
-                    }}
-                    className={`w-12 h-12 flex items-center justify-center text-2xl rounded-xl transition-colors border border-[var(--theme-border)]
-                      ${isGameComplete ? 
-                        `bg-[var(--theme-success)] cursor-pointer hover:bg-[var(--theme-success)] border-none
-                         ${hiddenShadows.has(finalEmoji) ? 'opacity-50' : ''}` : 
-                        `${revealedEmojis.has(finalEmoji) ? 'success-bg border-none' : 
-                          finalEmoji ? 'theme-button hover:theme-button-hover' : 'bg-transparent hover:bg-opacity-10 hover:theme-button-inactive-hover'}`
-                      }`}
-                  >
-                    {finalEmoji || '❓'}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Reset button */}
-            {!isGameComplete && selectedEmojis.some(emoji => emoji && !revealedEmojis.has(emoji)) && (
-              <button
-                onClick={() => {
-                  // Keep revealed emojis, clear only non-revealed ones
-                  const newSelectedEmojis = selectedEmojis.map(emoji => 
-                    revealedEmojis.has(emoji) ? emoji : ''
-                  );
-                  setSelectedEmojis(newSelectedEmojis);
-                }}
-                className="absolute right-0 w-12 h-12 flex items-center justify-center text-2xl theme-button hover:theme-button-hover rounded-xl transition-colors"
-              >
-                🔄
-              </button>
-            )}
-          </div>
+          <SelectedEmojisDisplay
+            emojis={selectedEmojis}
+            revealedEmojis={revealedEmojis}
+            hiddenEmojis={hiddenEmojis}
+            isGameComplete={isGameComplete}
+            dailyGameAnswer={dailyGame.answer}
+            onToggleHidden={handleToggleHidden}
+            onRemoveEmoji={handleRemoveEmoji}
+            onReset={handleReset}
+            guesses={guesses}
+            hints={hints}
+          />
         </div>
 
         <div className="theme-panel rounded-2xl p-4 h-[50%]">
-          {/* Emoji Grid and Guess Button */}
-          {!isGameComplete && (
-            <div className="h-full flex flex-col justify-between">
-              <div className="grid grid-cols-5 gap-1 w-fit mx-auto">
-                {dailyGame.options.map((emoji, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleEmojiSelect(emoji)}
-                    disabled={revealedEmojis.has(emoji) || incorrectEmojis.has(emoji)}
-                    className={`w-12 h-12 flex items-center justify-center text-2xl rounded-xl transition-colors border border-[var(--theme-border)] ${
-                      revealedEmojis.has(emoji)
-                        ? 'success-bg border-none'
-                        : incorrectEmojis.has(emoji)
-                        ? 'error-bg border-none'
-                        : selectedEmojis.includes(emoji)
-                        ? 'theme-button hover:theme-button-hover border border-[var(--theme-border)]'
-                        : 'bg-transparent hover:bg-opacity-10 hover:theme-button-inactive-hover'
-                    }`}
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={handleCheckSolution}
-                disabled={selectedEmojis.length !== dailyGame?.required_count || selectedEmojis.includes('')}
-                className={`h-12 rounded-xl text-3xl transition-colors w-[calc(12rem+1rem)] mx-auto border border-[var(--theme-border)] ${
-                  selectedEmojis.length === dailyGame?.required_count && !selectedEmojis.includes('')
-                    ? 'theme-button hover:theme-button-hover'
-                    : 'bg-transparent disabled:opacity-25 disabled:cursor-not-allowed'
-                }`}
-              >
-                {'💔'.repeat(3 - attemptsLeft) + '❤️'.repeat(attemptsLeft)}
-              </button>
-            </div>
-          )}
-
-          {/* Guess History */}
-          {isGameComplete && (
-            <div className="h-full flex flex-col gap-4">
-              <div className="flex-1 flex flex-col gap-2 items-center overflow-y-auto">
-                {[...guessHistory].reverse().map((guess, i) => (
-                  <div key={i} className="flex gap-1">
-                    {guess.map((emoji, j) => (
-                      <div 
-                        key={j}
-                        className={`w-12 h-12 flex items-center justify-center text-2xl rounded-xl ${
-                          dailyGame.answer.includes(emoji) ? 'bg-[var(--theme-success)]' : 'bg-[var(--theme-error)]'
-                        }`}
-                      >
-                        {emoji}
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-              <div className="flex gap-4 items-center mt-4">
-                <div className="flex-1 text-center text-lg flex flex-col gap-1">
-                  <div>⏭️ 🎮</div>
-                  <div>{timeUntilMidnight}</div>
-                </div>
-                <button
-                  onClick={handleShare}
-                  className="flex-1 h-12 rounded-xl text-xl theme-button hover:theme-button-hover transition-colors flex items-center justify-center"
-                >
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    width="24" 
-                    height="24" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  >
-                    <circle cx="18" cy="5" r="3"/>
-                    <circle cx="6" cy="12" r="3"/>
-                    <circle cx="18" cy="19" r="3"/>
-                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
+          {!isGameComplete ? (
+            <GameControls
+              options={dailyGame.options}
+              selectedEmojis={selectedEmojis}
+              revealedEmojis={revealedEmojis}
+              incorrectEmojis={incorrectEmojis}
+              attemptsLeft={attemptsLeft}
+              requiredCount={dailyGame.required_count}
+              onEmojiSelect={handleEmojiSelect}
+              onSubmitGuess={handleCheckSolution}
+            />
+          ) : (
+            <GuessHistory
+              guesses={guesses?.map(g => g.emojis) || []}
+              correctEmojis={dailyGame.answer}
+              hints={hints}
+              timeUntilMidnight={timeUntilMidnight}
+              onShare={handleShare}
+              streak={streak}
+              hiddenEmojis={hiddenEmojis}
+            />
           )}
         </div>
       </div>
