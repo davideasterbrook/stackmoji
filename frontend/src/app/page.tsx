@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import ShadowDisplay from '@/components/ShadowDisplay';
-import { DailyGame, GameState, GuessData, HintData } from '@/types';
+import { DailyGame, GameState, GuessData, HintData } from '../types';
 import SelectedEmojisDisplay from '@/components/SelectedEmojisDisplay';
 import GameControls from '@/components/GameControls';
 import GuessHistory from '@/components/GuessHistory';
@@ -249,7 +249,7 @@ export default function Home() {
 
     // Create a map of emoji counts in the answer
     const answerCounts = new Map<string, number>();
-    dailyGame.answer.forEach(emoji => {
+    dailyGame.answer.forEach((emoji: string) => {
       answerCounts.set(emoji, (answerCounts.get(emoji) || 0) + 1);
     });
 
@@ -287,14 +287,13 @@ export default function Home() {
     }
   };
 
-  const handleShare = () => {
+  const handleShare = async () => {
     if (!dailyGame) return;
     
     const resultEmojis = guessHistory
       .map((guess, guessIndex) => 
         guess.map(emoji => {
           if (dailyGame.answer.includes(emoji)) {
-            // Check if this emoji was hinted before this guess
             const wasHinted = hints.some(h => h.emoji === emoji && h.usedAtGuessNumber <= guessIndex);
             return wasHinted ? '🟧' : '🟩';
           }
@@ -303,9 +302,26 @@ export default function Home() {
       )
       .join('\n');
 
-    const text = `${hasWon ? guessHistory.length : 'X'}/${3}\n\n${resultEmojis}`;
+    const gameUrl = window.location.origin;
+    const text = `${hasWon ? '✅ '+ guessHistory.length : '❌'}/${3}\n\n${resultEmojis}\n\n🎮: ${gameUrl}`;
     
-    navigator.clipboard.writeText(text);
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          text: text,
+        });
+      } else {
+        // Fallback to clipboard if Web Share API is not available
+        await navigator.clipboard.writeText(text);
+        alert('📋 ✅');  // "Copied to clipboard!"
+      }
+    } catch (error) {
+      // Only log and show error if it's not a share cancellation
+      if (error instanceof Error && error.name !== 'AbortError') {
+        console.error('Error sharing:', error);
+        alert('❌ 📋');  // "Failed to copy"
+      }
+    }
   };
 
   const handleToggleHidden = (emoji: string) => {
