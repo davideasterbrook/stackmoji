@@ -18,12 +18,20 @@ resource "aws_iam_role" "lambda_role" {
 
 # IAM policy for SSM access
 resource "aws_iam_role_policy" "lambda_ssm_policy" {
-  name = "ssm-access"
+  name = "${var.project_name}-lambda-policy"
   role = aws_iam_role.lambda_role.id
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject",
+          "s3:PutObjectAcl"
+        ]
+        Resource = "${aws_s3_bucket.game_data.arn}/*"
+      },
       {
         Effect = "Allow"
         Action = [
@@ -44,4 +52,4 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
 
 # Add data sources for current region and account ID
 data "aws_region" "current" {}
-data "aws_caller_identity" "current" {} 
+data "aws_caller_identity" "current" {}

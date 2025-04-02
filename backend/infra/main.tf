@@ -12,6 +12,12 @@ provider "aws" {
   region  = "eu-west-1"
 }
 
+provider "aws" {
+  profile = "launchcraft-admin"
+  region  = "us-east-1"
+  alias   = "us-east-1"
+}
+
 output "account_id" {
   value = data.aws_caller_identity.current.account_id
 }

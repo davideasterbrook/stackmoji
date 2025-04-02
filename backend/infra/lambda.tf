@@ -1,8 +1,8 @@
 # Lambda function
-resource "aws_lambda_function" "daily_game" {
+resource "aws_lambda_function" "daily_generator" {
   source_code_hash = filebase64sha256("lambda_function.zip")
   filename         = "lambda_function.zip"
-  function_name    = "emoji-daily-game-${random_string.suffix.result}"
+  function_name    = "${var.project_name}-daily-generator"
   role            = aws_iam_role.lambda_role.arn
   handler         = "update_daily_game.lambda_handler"
   runtime         = "python3.12"
@@ -13,13 +13,14 @@ resource "aws_lambda_function" "daily_game" {
     variables = {
       SSM_PARAMETER_NAME = "/emoji-shadows/daily-game"
       POWERTOOLS_LOG_LEVEL = "DEBUG"
-      POWERTOOLS_SERVICE_NAME = "EMOJI-GAME"
+      POWERTOOLS_SERVICE_NAME = "${var.project_name}"
+      BUCKET_NAME = aws_s3_bucket.game_data.id
     }
   }
 }
 
 # Add CloudWatch Log Group with retention
 resource "aws_cloudwatch_log_group" "lambda_log_group" {
-  name              = "/aws/lambda/${aws_lambda_function.daily_game.function_name}"
+  name              = "/aws/lambda/${aws_lambda_function.daily_generator.function_name}"
   retention_in_days = 90
 } 

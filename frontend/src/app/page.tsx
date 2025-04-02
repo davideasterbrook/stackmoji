@@ -106,7 +106,7 @@ export default function Home() {
         }
 
         // If no cache or cache is outdated, fetch new data
-        const response = await fetch('https://ocvv7pff71.execute-api.eu-west-1.amazonaws.com/daily-game');
+        const response = await fetch('https://stackmoji-daily-game.s3.eu-west-1.amazonaws.com/daily-game.json');
         const data = await response.json();
         
         const gameData = {

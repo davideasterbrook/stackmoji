@@ -4,7 +4,7 @@ resource "aws_apigatewayv2_api" "emoji_api" {
   protocol_type = "HTTP"
 
   cors_configuration {
-    allow_origins = ["*"]  # Consider restricting this to your frontend domain in production
+    allow_origins = var.allowed_origins
     allow_methods = ["GET", "OPTIONS"]
     allow_headers = ["content-type", "x-amz-date", "authorization", "x-api-key", "x-amz-security-token"]
     max_age      = 300
@@ -21,7 +21,7 @@ resource "aws_apigatewayv2_integration" "lambda" {
   api_id           = aws_apigatewayv2_api.emoji_api.id
   integration_type = "AWS_PROXY"
 
-  integration_uri    = aws_lambda_function.daily_game.invoke_arn
+  integration_uri    = aws_lambda_function.daily_generator.invoke_arn
   integration_method = "POST"
 }
 
@@ -34,7 +34,7 @@ resource "aws_apigatewayv2_route" "get_game" {
 resource "aws_lambda_permission" "api_gw" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.daily_game.function_name
+  function_name = aws_lambda_function.daily_generator.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.emoji_api.execution_arn}/*/*"
 } 

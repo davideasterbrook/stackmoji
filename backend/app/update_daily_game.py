@@ -1,5 +1,5 @@
 import random
-import emoji
+import os
 from typing import List, Dict
 import unicodedata
 from aws_lambda_powertools import Logger
@@ -121,6 +121,16 @@ def lambda_handler(event, context):
                 Type='String',
                 Overwrite=True
             )
+
+            s3_client = boto3.client('s3')
+            s3_client.put_object(
+                Bucket=os.environ['BUCKET_NAME'],
+                Key='daily-game.json',
+                Body=json.dumps({
+                    'options': new_game['options'],
+                    'answer': new_game['answer']
+                })
+            )
             
             return {
                 'statusCode': 200,
@@ -132,6 +142,9 @@ def lambda_handler(event, context):
         try:
             options = ssm.get_parameter(Name='/emoji-shadows/daily-options')['Parameter']['Value']
             answer = ssm.get_parameter(Name='/emoji-shadows/daily-answer')['Parameter']['Value']
+
+
+
             return {
                 'statusCode': 200,
                 'body': json.dumps({

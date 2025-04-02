@@ -26,7 +26,11 @@ uvicorn app.main:app --reload --port 8000
 ```
 
 ### Frontend
-(Coming soon)
+```bash
+cd frontend
+export AWS_PROFILE=<PROFILE>
+./deploy.sh
+```
 
 ## Getting Started
 
