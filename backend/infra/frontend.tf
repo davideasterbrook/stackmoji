@@ -43,6 +43,11 @@ resource "aws_cloudfront_distribution" "frontend" {
     min_ttl     = 0
     default_ttl = 3600
     max_ttl     = 86400
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.www_redirect.arn
+    }
   }
 
   restrictions {
@@ -69,6 +74,8 @@ resource "aws_cloudfront_distribution" "frontend" {
     response_code      = 200
     response_page_path = "/index.html"
   }
+
+  aliases = ["stackmoji.com", "www.stackmoji.com"]
 }
 
 # CloudFront OAI
@@ -81,4 +88,69 @@ resource "aws_acm_certificate" "frontend" {
   provider          = aws.us-east-1  # Certificate must be in us-east-1 for CloudFront
   domain_name       = "stackmoji.com"
   validation_method = "DNS"
-} 
+  
+  subject_alternative_names = ["*.stackmoji.com"]
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# S3 bucket policy
+resource "aws_s3_bucket_policy" "frontend" {
+  bucket = aws_s3_bucket.frontend.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "AllowCloudFrontOAI"
+        Effect    = "Allow"
+        Principal = {
+          AWS = aws_cloudfront_origin_access_identity.frontend.iam_arn
+        }
+        Action   = "s3:GetObject"
+        Resource = "${aws_s3_bucket.frontend.arn}/*"
+      }
+    ]
+  })
+}
+
+# CloudFront function for www redirect
+resource "aws_cloudfront_function" "www_redirect" {
+  name    = "www-redirect"
+  runtime = "cloudfront-js-1.0"
+  publish = true
+  code    = <<-EOF
+function handler(event) {
+  var request = event.request;
+  var headers = request.headers;
+  var host = headers.host.value;
+  
+  if (host === 'stackmoji.com') {
+    // Build query string if it exists
+    var queryString = '';
+    if (request.querystring) {
+      var params = [];
+      for (var key in request.querystring) {
+        params.push(key + '=' + request.querystring[key].value);
+      }
+      if (params.length > 0) {
+        queryString = '?' + params.join('&');
+      }
+    }
+    
+    return {
+      statusCode: 301,
+      statusDescription: 'Moved Permanently',
+      headers: {
+        'location': { value: 'https://www.stackmoji.com' + request.uri + queryString },
+        'cache-control': { value: 'max-age=3600' }
+      }
+    };
+  }
+  
+  return request;
+}
+EOF
+}

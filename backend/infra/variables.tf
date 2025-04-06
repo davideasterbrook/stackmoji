@@ -13,8 +13,10 @@ variable "allowed_origins" {
   type    = list(string)
   default = [
     "http://localhost:3000",
-    "http://localhost:5173",
+    "http://localhost:5173", 
     "https://emoji-shadow.vercel.app",
+    "https://stackmoji.com",
+    "https://www.stackmoji.com"
   ]
   description = "List of allowed CORS origins"
 }

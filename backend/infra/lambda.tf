@@ -12,7 +12,7 @@ resource "aws_lambda_function" "daily_generator" {
   environment {
     variables = {
       SSM_PARAMETER_NAME = "/emoji-shadows/daily-game"
-      POWERTOOLS_LOG_LEVEL = "DEBUG"
+      POWERTOOLS_LOG_LEVEL = "INFO"
       POWERTOOLS_SERVICE_NAME = "${var.project_name}"
       BUCKET_NAME = aws_s3_bucket.game_data.id
     }

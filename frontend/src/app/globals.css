@@ -122,3 +122,13 @@ body {
   color: var(--theme-text);
 }
 
+select {
+  /* Force dropdown to open downward */
+  position: relative;
+  z-index: 10;
+}
+
+select option {
+  position: relative;
+  z-index: 11;
+}

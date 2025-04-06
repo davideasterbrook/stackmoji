@@ -6,11 +6,6 @@ output "bucket_domain_name" {
   value = aws_s3_bucket.game_data.bucket_regional_domain_name
 }
 
-# CloudFront Distribution Domain Name
-output "cloudfront_domain_name" {
-  value = aws_cloudfront_distribution.frontend.domain_name
-}
-
 # ACM Certificate Validation Details
 output "certificate_validation_records" {
   value = {
@@ -25,6 +20,11 @@ output "certificate_validation_records" {
 
 output "frontend_bucket_name" {
   value = aws_s3_bucket.frontend.id
+}
+
+# CloudFront Distribution Domain Name
+output "cloudfront_domain_name" {
+  value = aws_cloudfront_distribution.frontend.domain_name
 }
 
 output "cloudfront_distribution_id" {

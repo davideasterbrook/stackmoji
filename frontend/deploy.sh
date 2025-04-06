@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+export AWS_PROFILE=launchcraft-admin
 
 # Get the bucket name and distribution ID from terraform output
 BUCKET_NAME=$(cd ../backend/infra && terraform output -raw frontend_bucket_name)

@@ -20,7 +20,18 @@ export default function GameControls({
   onSubmitGuess
 }: GameControlsProps) {
   return (
-    <div className="h-full flex flex-col justify-between">
+    <div className="h-full flex flex-col gap-4">
+      <button
+        onClick={onSubmitGuess}
+        disabled={selectedEmojis.length !== requiredCount || selectedEmojis.includes('')}
+        className={`h-12 rounded-xl text-3xl transition-colors w-[calc(12rem+1rem)] mx-auto border border-[var(--theme-border)] ${
+          selectedEmojis.length === requiredCount && !selectedEmojis.includes('')
+            ? 'theme-button hover:theme-button-hover'
+            : 'bg-transparent disabled:opacity-25 disabled:cursor-not-allowed'
+        }`}
+      >
+        {'💔'.repeat(3 - attemptsLeft) + '❤️'.repeat(attemptsLeft)}
+      </button>
       <div className="grid grid-cols-5 gap-1 w-fit mx-auto">
         {options.map((emoji, index) => (
           <button
@@ -41,18 +52,6 @@ export default function GameControls({
           </button>
         ))}
       </div>
-
-      <button
-        onClick={onSubmitGuess}
-        disabled={selectedEmojis.length !== requiredCount || selectedEmojis.includes('')}
-        className={`h-12 rounded-xl text-3xl transition-colors w-[calc(12rem+1rem)] mx-auto border border-[var(--theme-border)] ${
-          selectedEmojis.length === requiredCount && !selectedEmojis.includes('')
-            ? 'theme-button hover:theme-button-hover'
-            : 'bg-transparent disabled:opacity-25 disabled:cursor-not-allowed'
-        }`}
-      >
-        {'💔'.repeat(3 - attemptsLeft) + '❤️'.repeat(attemptsLeft)}
-      </button>
     </div>
   );
 } 

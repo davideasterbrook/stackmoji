@@ -18,6 +18,13 @@ provider "aws" {
   alias   = "us-east-1"
 }
 
+# Provider for DNS account
+provider "aws" {
+  profile = "dns-launchcraft-admin"  # Update this to your DNS account profile
+  region  = "us-east-1"  # Route 53 is global but uses us-east-1
+  alias   = "dns"
+}
+
 output "account_id" {
   value = data.aws_caller_identity.current.account_id
 }

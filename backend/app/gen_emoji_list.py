@@ -3,34 +3,8 @@ import emoji
 import json
 from typing import List
 
-def get_all_basic_emojis() -> List[str]:
-    all_emojis = []
-    # excluded_terms = [
-    #     "FRAME", "SUNRISE", "SUNSET", "MOON VIEWING", "CITYSCAPE",
-    #     "SQUARE", "CIRCLE", "DIAMOND", "RECTANGLE",
-    #     "BLACK SMALL", "WHITE SMALL",  # catches small geometric shapes
-    #     "UP-POINTING RED TRIANGLE",    # we'll only keep the regular triangle
-    #     "DOWN-POINTING RED TRIANGLE",
-    #     "CLOCK FACE",                  # catches all clock faces (🕐, 🕑, etc.)
-    #     "CLOCK",                        # catch any other clock variants
-    #     "FIREWORK",
-    #     "BUTTON",
-    #     "BRIDGE", "X-RAY", "CINEMA", "ARROW",  # 🌉🩻🎦⬇
-    #     "SYMBOL", "SIGN",                       # General symbols and signs
-    #     "RESTROOM", "TOILET", "WASHROOM",      # 🚾 and similar
-    #     "FOG", "FOGGY",                        # 🌫🌁
-    #     "DAVID STAR", "HEXAGRAM",              # 🔯
-    #     "SILHOUETTE", "GENDER",                # 🚺 and similar gender signs
-    #     "DOWNWARDS", "UPWARDS",                # Direction arrows
-    #     "LEFTWARDS", "RIGHTWARDS",             # Direction arrows
-    #     "BATHROOM",                            # Additional bathroom-related
-    #     "SIGNAGE",                             # Generic signage
-    #     "WEATHER",                             # Weather-related scenes
-    #     "SCENE",                               # Generic scenes
-    # ]
-    
-    seen_triangle = False  # To ensure we only keep one triangle variant
-    
+def get_all_base_emojis() -> List[str]:
+    all_emojis = [] 
     # Specific emojis to ban (you can add more here)
     banned_emojis = {
         "🪯", "🫏", "🫩", "🫨", "🪽", "🛜", "🫜", "🫜", "🪇", # Unicode 16.0 emojis
@@ -52,7 +26,7 @@ def get_all_basic_emojis() -> List[str]:
         "💽", "🎛", "🗄", "💾", "📰", "⌛", "🗓",
         "🥈", "🥉",
     }
-    
+
     # Color variants to exclude (keep red versions)
     color_terms = [
         "GREEN", "BLUE", "PURPLE", "YELLOW", "ORANGE", "BROWN", "WHITE", "BLACK",
@@ -127,8 +101,8 @@ def get_all_basic_emojis() -> List[str]:
     return all_emojis
 
 if __name__ == "__main__":
-    emojis = get_all_basic_emojis()
-    with open('basic_emojis.json', 'w', encoding='utf-8') as f:
+    emojis = get_all_base_emojis()
+    with open('base_emojis.json', 'w', encoding='utf-8') as f:
         # Split emojis into chunks of 15
         chunks = [emojis[i:i + 15] for i in range(0, len(emojis), 15)]
         

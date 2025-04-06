@@ -6,6 +6,7 @@ import { DailyGame, GameState, GuessData, HintData } from '../types';
 import SelectedEmojisDisplay from '@/components/SelectedEmojisDisplay';
 import GameControls from '@/components/GameControls';
 import GuessHistory from '@/components/GuessHistory';
+import HelpModal from '@/components/HelpModal';
 
 
 function useTimeUntilMidnightUTC() {
@@ -106,7 +107,11 @@ export default function Home() {
         }
 
         // If no cache or cache is outdated, fetch new data
-        const response = await fetch('https://stackmoji-daily-game.s3.eu-west-1.amazonaws.com/daily-game.json');
+        const response = await fetch('https://stackmoji-daily-game.s3.eu-west-1.amazonaws.com/daily-game.json', {
+          headers: {
+            'Origin': window.location.origin
+          }
+        });
         const data = await response.json();
         
         const gameData = {
@@ -377,6 +382,8 @@ export default function Home() {
     setSelectedEmojis(newSelectedEmojis);
   };
 
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+
   if (isLoading) {
     return (
       <main 
@@ -425,6 +432,21 @@ export default function Home() {
           </button>
         )}
       </div>
+
+      <div className="absolute top-4 right-4">
+        <button
+          onClick={() => setIsHelpModalOpen(true)}
+          className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
+          aria-label="Help"
+        >
+          ℹ️
+        </button>
+      </div>
+
+      <HelpModal 
+        isOpen={isHelpModalOpen}
+        onClose={() => setIsHelpModalOpen(false)}
+      />
 
       <div className="w-full max-w-2xl h-full flex flex-col gap-2">
         <div className="rounded-2xl p-4 theme-panel h-[40%]">
