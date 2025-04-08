@@ -282,14 +282,37 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
       onClick={handleBackdropClick}
     >
       <div 
-        className={`theme-panel rounded-2xl relative shadow-lg ${
-          isRTL ? 'rtl' : 'ltr'
-        } max-h-[90vh] flex flex-col w-full max-w-md mx-4 overflow-hidden`}
-        dir={isRTL ? 'rtl' : 'ltr'}
+        className={`theme-panel rounded-2xl relative shadow-lg max-h-[90vh] flex flex-col w-full max-w-md mx-4 overflow-hidden`}
       >
         <div className="sticky top-0 z-20 theme-panel border-b theme-border p-6 pb-2 rounded-t-2xl">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold">{instructions.title}</h2>
+            <div dir={isRTL ? 'rtl' : 'ltr'} className="flex-1">
+              <h2 className="text-2xl font-bold">{instructions.title}</h2>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          <div dir={isRTL ? 'rtl' : 'ltr'} className="p-6 pt-4 space-y-3">
+            {instructions.steps.map((step, index) => {
+              if (React.isValidElement(step)) {
+                return step;
+              }
+              return (
+                <p key={index} className={isRTL ? 'text-right' : 'text-left'}>
+                  {step}
+                </p>
+              );
+            })}
+          </div>
+        </div>
+        <div className="sticky bottom-0 z-20 theme-panel border-t theme-border p-4 rounded-b-2xl">
+          <div className="flex justify-end">
             <div className="relative">
               <select
                 value={selectedLanguage}
@@ -306,20 +329,6 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 ▼
               </div>
             </div>
-          </div>
-        </div>
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-6 pt-4 space-y-3">
-            {instructions.steps.map((step, index) => {
-              if (React.isValidElement(step)) {
-                return step;
-              }
-              return (
-                <p key={index} className={isRTL ? 'text-right' : 'text-left'}>
-                  {step}
-                </p>
-              );
-            })}
           </div>
         </div>
       </div>

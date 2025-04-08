@@ -34,7 +34,7 @@ def generate_daily_game():
     daily_options = select_daily_emojis(25)
 
     # Select 3-4 emojis from the options for the answer
-    answer_count = random.randint(3, 4)
+    answer_count = random.randint(4, 4)
     daily_answer = random.sample(daily_options, answer_count)
 
     return {

@@ -30,6 +30,16 @@ resource "aws_acm_certificate_validation" "frontend" {
   validation_record_fqdns = [for record in aws_route53_record.acm_validation : record.fqdn]
 }
 
+# Google Search Console verification TXT record
+resource "aws_route53_record" "google_site_verification" {
+  provider = aws.dns
+  zone_id  = data.aws_route53_zone.domain.zone_id
+  name     = "stackmoji.com"
+  type     = "TXT"
+  ttl      = 300
+  records  = ["google-site-verification=IrrsWRgKulg8-iaqyYC5BOCCjB91DaSL3MGfNKKhQ-U"]
+}
+
 # This A record will be created once CloudFront is ready
 resource "aws_route53_record" "frontend_a" {
   provider = aws.dns
