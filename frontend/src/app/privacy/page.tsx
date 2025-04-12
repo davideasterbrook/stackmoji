@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { trackPageView } from '../analytics';
 import Link from 'next/link';
 import { useTheme } from '../ThemeProvider';
 
 export default function PrivacyPolicy() {
   // Use our theme context hook
-  const { theme, toggleTheme, isDarkMode } = useTheme();
+  const { toggleTheme, isDarkMode } = useTheme();
 
   useEffect(() => {
     trackPageView('/privacy');

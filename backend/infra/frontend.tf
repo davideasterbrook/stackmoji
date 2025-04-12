@@ -46,7 +46,7 @@ resource "aws_cloudfront_distribution" "frontend" {
 
     function_association {
       event_type   = "viewer-request"
-      function_arn = aws_cloudfront_function.www_redirect.arn
+      function_arn = aws_cloudfront_function.url_rewrite.arn
     }
   }
 
@@ -62,17 +62,20 @@ resource "aws_cloudfront_distribution" "frontend" {
     minimum_protocol_version = "TLSv1.2_2021"
   }
 
-  # Handle SPA routing
-  custom_error_response {
-    error_code         = 403
-    response_code      = 200
-    response_page_path = "/index.html"
-  }
-
+  # Handle 404 errors - redirect to 404.html to support proper error handling
   custom_error_response {
     error_code         = 404
     response_code      = 404
     response_page_path = "/404.html"
+    error_caching_min_ttl = 300
+  }
+
+  # Handle 403 errors from S3 - show 404.html since it's likely a "not found" case
+  custom_error_response {
+    error_code         = 403
+    response_code      = 404
+    response_page_path = "/404.html"
+    error_caching_min_ttl = 300
   }
 
   aliases = ["stackmoji.com", "www.stackmoji.com"]
@@ -109,26 +112,25 @@ resource "aws_s3_bucket_policy" "frontend" {
         Principal = {
           AWS = aws_cloudfront_origin_access_identity.frontend.iam_arn
         }
-        Action   = "s3:GetObject"
-        Resource = "${aws_s3_bucket.frontend.arn}/*"
+        Action   = ["s3:GetObject", "s3:ListBucket"]
+        Resource = ["${aws_s3_bucket.frontend.arn}/*", "${aws_s3_bucket.frontend.arn}"]
       }
     ]
   })
 }
 
-# CloudFront function for www redirect
-resource "aws_cloudfront_function" "www_redirect" {
-  name    = "www-redirect"
+# CloudFront function for URL rewriting to handle Next.js static exports
+resource "aws_cloudfront_function" "url_rewrite" {
+  name    = "url-rewrite"
   runtime = "cloudfront-js-1.0"
   publish = true
   code    = <<-EOF
 function handler(event) {
   var request = event.request;
-  var headers = request.headers;
-  var host = headers.host.value;
+  var uri = request.uri;
   
-  if (host === 'stackmoji.com') {
-    // Build query string if it exists
+  // Handle www redirect first if needed
+  if (request.headers.host.value === 'stackmoji.com') {
     var queryString = '';
     if (request.querystring) {
       var params = [];
@@ -144,10 +146,23 @@ function handler(event) {
       statusCode: 301,
       statusDescription: 'Moved Permanently',
       headers: {
-        'location': { value: 'https://www.stackmoji.com' + request.uri + queryString },
+        'location': { value: 'https://www.stackmoji.com' + uri + queryString },
         'cache-control': { value: 'max-age=3600' }
       }
     };
+  }
+  
+  // Next.js static export path handling
+  // If the URI doesn't end with a file extension (like .html, .js, .css, etc.)
+  if (!uri.includes('.')) {
+    // If URI doesn't end with a slash, check if we should serve the index.html in a subfolder
+    if (uri.length > 0 && !uri.endsWith('/')) {
+      // For paths like /privacy - check if we need to append /index.html
+      request.uri = uri + '/index.html';
+    } else if (uri.endsWith('/')) {
+      // For paths with trailing slash like /privacy/ - serve the index.html file
+      request.uri = uri + 'index.html';
+    }
   }
   
   return request;

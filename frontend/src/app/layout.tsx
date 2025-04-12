@@ -5,8 +5,11 @@ import CookieConsent from '@/components/CookieConsent'
 import ThemeProvider from './ThemeProvider';
 
 export const metadata: Metadata = {
-  title: 'Stackmoji | 🙈👀❓',
-  description: 'Challenge yourself with a daily emoji shadow puzzle. Guess which emojis are creating the shadows and track your streak!',
+  title: {
+    default: 'Stackmoji',
+    template: '%s | Stackmoji',
+  },
+  description: 'Stack emojis to victory in this fun web game',
   keywords: 'emoji game, daily puzzle, emoji challenge',
   applicationName: 'Stackmoji',
   authors: [{ name: 'Stackmoji' }],

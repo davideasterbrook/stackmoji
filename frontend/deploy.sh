@@ -17,6 +17,6 @@ aws s3 sync out/ s3://$BUCKET_NAME --delete
 
 # Invalidate CloudFront cache
 echo "Invalidating CloudFront cache..."
-aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
+AWS_PAGER="" aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
 
 echo "Deployment complete!" 

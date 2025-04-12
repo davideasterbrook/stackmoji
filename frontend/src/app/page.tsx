@@ -7,6 +7,7 @@ import SelectedEmojisDisplay from '@/components/SelectedEmojisDisplay';
 import GameControls from '@/components/GameControls';
 import GuessHistory from '@/components/GuessHistory';
 import HelpModal from '@/components/HelpModal';
+import StackmojiAnnouncement from '@/components/StackmojiAnnouncement';
 import { trackPageView, trackEvent } from '@/app/analytics';
 import { useTheme } from './ThemeProvider';
 
@@ -58,7 +59,7 @@ export default function Home() {
   const [streak, setStreak] = useState<number>(0);
 
   // Use our theme context hook
-  const { theme, toggleTheme, isDarkMode } = useTheme();
+  const { toggleTheme, isDarkMode } = useTheme();
 
   const [guesses, setGuesses] = useState<GuessData[]>([]);
   const [hints, setHints] = useState<HintData[]>([]);
@@ -460,6 +461,8 @@ export default function Home() {
         isOpen={isHelpModalOpen}
         onClose={() => setIsHelpModalOpen(false)}
       />
+      
+      <StackmojiAnnouncement />
 
       <div className="w-full max-w-md h-full flex flex-col gap-2">
         <section className="rounded-2xl p-4 theme-panel h-[35%]" aria-label="Shadow Display">
