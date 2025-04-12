@@ -8,7 +8,7 @@ import GameControls from '@/components/GameControls';
 import GuessHistory from '@/components/GuessHistory';
 import HelpModal from '@/components/HelpModal';
 import { trackPageView, trackEvent } from '@/app/analytics';
-
+import { useTheme } from './ThemeProvider';
 
 function useTimeUntilMidnightUTC() {
   const [timeLeft, setTimeLeft] = useState('');
@@ -57,19 +57,8 @@ export default function Home() {
   const [hiddenEmojis, setHiddenEmojis] = useState<Set<string>>(new Set());
   const [streak, setStreak] = useState<number>(0);
 
-  // Initialize with a default value
-  const [isDarkMode, setIsDarkMode] = useState(true);
-
-  // Move the theme detection to a useEffect
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      setIsDarkMode(savedTheme === 'dark');
-    } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setIsDarkMode(prefersDark);
-    }
-  }, []);
+  // Use our theme context hook
+  const { theme, toggleTheme, isDarkMode } = useTheme();
 
   const [guesses, setGuesses] = useState<GuessData[]>([]);
   const [hints, setHints] = useState<HintData[]>([]);
@@ -149,26 +138,6 @@ export default function Home() {
     };
 
     fetchDailyGame();
-  }, []);
-
-  useEffect(() => {
-    document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
-    // Save theme preference to localStorage
-    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-  }, [isDarkMode]);
-
-  // Optional: Listen for system theme changes
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => {
-      // Only update if user hasn't set a preference
-      if (!localStorage.getItem('theme')) {
-        setIsDarkMode(e.matches);
-      }
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
   // Load saved game state
@@ -409,10 +378,7 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <main 
-        className="h-screen w-screen p-4 flex items-center justify-center overflow-hidden theme-container" 
-        data-theme={isDarkMode ? 'dark' : 'light'}
-      >
+      <main className="h-screen w-screen p-4 flex items-center justify-center overflow-hidden theme-container">
         <div className="text-4xl animate-bounce">🎮</div>
       </main>
     );
@@ -420,15 +386,22 @@ export default function Home() {
 
   if (!dailyGame) return null;
 
+  // Show sun emoji in dark mode (to switch to light), moon in light mode (to switch to dark)
+  const themeIcon = isDarkMode ? '☀️' : '🌙';
+
   return (
-    <main className="h-screen w-screen p-4 flex items-center justify-center overflow-hidden theme-container" aria-label="Emoji Shadows Game">
+    <main 
+      className="h-screen w-screen p-4 flex items-center justify-center overflow-hidden theme-container"
+      aria-label="Emoji Shadows Game"
+      suppressHydrationWarning
+    >
       <header className="absolute top-4 left-4 flex gap-2">
         <button
-          onClick={() => setIsDarkMode(!isDarkMode)}
+          onClick={toggleTheme}
           className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
           aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
         >
-          {isDarkMode ? '☀️' : '🌙'}
+          {themeIcon}
         </button>
         
         {process.env.NODE_ENV === 'development' && (

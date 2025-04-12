@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import "./globals.css";
 import Script from 'next/script'
 import CookieConsent from '@/components/CookieConsent'
-
+import ThemeProvider from './ThemeProvider';
 
 export const metadata: Metadata = {
   title: 'Stackmoji | 🙈👀❓',
@@ -64,8 +64,28 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Minimal theme script - Just prevents flash by setting initial colors */}
+        <script 
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Minimal script to prevent flash of wrong theme
+              try {
+                let theme = localStorage.getItem('theme');
+                if (!theme) {
+                  theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                  localStorage.setItem('theme', theme);
+                }
+
+                document.documentElement.setAttribute('data-theme', theme);
+              } catch (e) {
+                console.error('Theme initialization error:', e);
+              }
+            `
+          }}
+        />
+        
         <Script id="consent-mode-init" strategy="beforeInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
@@ -129,8 +149,10 @@ export default function RootLayout({
         />
       </head>
       <body>
-        {children}
-        <CookieConsent />
+        <ThemeProvider>
+          {children}
+          <CookieConsent />
+        </ThemeProvider>
       </body>
     </html>
   )

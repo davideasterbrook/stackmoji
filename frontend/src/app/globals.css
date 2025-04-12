@@ -3,7 +3,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Default theme styles (before JavaScript loads) */
+html {
+  background-color: var(--theme-bg, #181c21); /* Default to dark theme */
+  color: var(--theme-text, #c8cfd7);
+}
 
+/* Apply theme transition to html and body for smooth theme changes */
+html, body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
 
 /* 
 Theme colors:
@@ -14,11 +23,18 @@ Theme colors:
 Dark theme:
 */
 
-:root {
-  /* Base theme colors */
-  --background: #ffffff;
-  --container-bg: #f1f5f9;
-  --text: #0f172a;
+/* Light theme styles - activated either by class or data-theme attribute */
+html.light-theme, html[data-theme='light'] {
+  /* Theme colors */
+  --theme-bg: #f8fafc;
+  --theme-panel: #f1f5f9;
+  --theme-button: #dae5f2;
+  --theme-button-hover: #cbd5e1;
+  --theme-button-inactive: rgba(148, 163, 184, 0.5);
+  --theme-button-inactive-hover: rgba(148, 163, 184, 0.7);
+  --theme-button-disabled: #94a3b8;
+  --theme-text: #3d4654;
+  --theme-border: #c8cfd7;
   
   /* Button states */
   --button-bg: #e2e8f0;
@@ -31,55 +47,50 @@ Dark theme:
   --error: #9d4646;
   --hint: #c8b653;
 
-  /* Theme colors */
-  --theme-bg: #f8fafc;
-  --theme-panel: #f1f5f9;
-  --theme-button: #dae5f2;
-  --theme-button-hover: #cbd5e1;
-  --theme-button-inactive: rgba(148, 163, 184, 0.5);
-  --theme-button-inactive-hover: rgba(148, 163, 184, 0.7);
-  --theme-button-disabled: #94a3b8;
-  --theme-text: #3d4654;
-  --theme-success: var(--success);  /* Updated to use base color */
-  --theme-error: var(--error);      /* Updated to use base color */
-  --theme-hint: var(--hint);      /* Add theme hint color */
-  --theme-border: #c8cfd7;
+  color-scheme: light dark;
 }
 
-[data-theme='dark'] {
-  /* --background: #2f3640; */
-  /* --container-bg: #0f172a; */
-  --text: #ffffff;
+/* Dark theme styles - activated either by class or data-theme attribute */
+html.dark-theme, html[data-theme='dark'] {
+  /* Theme colors */
+  --theme-bg: #181c21;
+  --theme-panel: #252a32;
+  --theme-button: #3d4654;
+  --theme-button-hover: #374151;
+  --theme-button-inactive: rgba(55, 65, 81, 0.5);
+  --theme-button-inactive-hover: rgba(75, 85, 99, 0.5);
+  --theme-button-disabled: #475569;
+  --theme-text: #c8cfd7;
+  --theme-border: #3d4654;
   
+  /* Button states */
   --button-bg: #334155;
   --button-hover: #475569;
   --button-disabled: #1e293b;
   --text-disabled: #475569;
-
-  --theme-bg: #181c21;
-  --theme-panel: #252a32;
-  --theme-button: #3d4654;
-  --theme-button-hover: #374151;  /* Hover state from their interactive elements */
-  --theme-button-inactive: rgba(55, 65, 81, 0.5);  /* Muted version of their secondary colors */
-  --theme-button-inactive-hover: rgba(75, 85, 99, 0.5);  /* Lighter on hover */
-  --theme-button-disabled: #475569;  /* Add this line for dark mode */
-  --theme-text: #c8cfd7;  /* Bright but not pure white text for better readability */
-  --theme-border: #3d4654;  /* Add this line for dark mode border color */
+  
+  /* Status colors */
+  --success: #6ca965;
+  --error: #9d4646;
+  --hint: #c8b653;
 }
 
 /* Theme classes */
 .theme-container {
   background-color: var(--theme-bg);
   color: var(--theme-text);
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .theme-panel {
   background-color: var(--theme-panel);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .theme-button {
   background-color: var(--theme-button);
   color: var(--theme-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .theme-button-hover:hover {
@@ -131,4 +142,23 @@ select {
 select option {
   position: relative;
   z-index: 11;
+}
+
+/* Apply theme transitions to all elements */
+html, body, .theme-container, .theme-panel, .theme-button {
+  transition: background-color 0.3s ease, 
+              color 0.3s ease, 
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+}
+
+/* Status colors used by both themes */
+:root {
+  --success: #6ca965;
+  --error: #9d4646;
+  --hint: #c8b653;
+  --theme-success: var(--success);
+  --theme-error: var(--error);
+  --theme-hint: var(--hint);
+  color-scheme: light dark;
 }

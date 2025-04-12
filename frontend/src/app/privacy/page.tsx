@@ -1,17 +1,21 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { trackPageView } from '../analytics';
 import Link from 'next/link';
+import { useTheme } from '../ThemeProvider';
 
 export default function PrivacyPolicy() {
+  // Use our theme context hook
+  const { theme, toggleTheme, isDarkMode } = useTheme();
+
   useEffect(() => {
     trackPageView('/privacy');
   }, []);
 
   return (
-    <main className="max-w-4xl mx-auto p-6">
-      <div className="mb-8">
+    <main className="max-w-4xl mx-auto p-6 theme-container" suppressHydrationWarning>
+      <div className="flex justify-between items-center mb-8">
         <Link 
           href="/" 
           className="inline-flex items-center text-blue-500 hover:text-blue-700"
@@ -30,11 +34,19 @@ export default function PrivacyPolicy() {
           </svg>
           Back to Game
         </Link>
+        
+        <button
+          onClick={toggleTheme}
+          className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
+          aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {isDarkMode ? '☀️' : '🌙'}
+        </button>
       </div>
 
       <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
       
-      <section className="mb-8">
+      <section className="mb-8 theme-panel p-4 rounded-lg">
         <h2 className="text-2xl font-semibold mb-4">Essential Functional Storage</h2>
         <p className="mb-4">
           For the game to function properly, we store the following data locally on your device:
@@ -47,12 +59,12 @@ export default function PrivacyPolicy() {
         <p className="mb-4">
           This data is stored using your browser&apos;s localStorage and is essential for the game to work. It is not transmitted to our servers and cannot be used to identify you.
         </p>
-        <p className="mb-4 text-sm text-gray-600">
+        <p className="mb-4 text-sm opacity-75">
           Note: This essential storage does not require consent as it is necessary for the game to function.
         </p>
       </section>
 
-      <section className="mb-8">
+      <section className="mb-8 theme-panel p-4 rounded-lg">
         <h2 className="text-2xl font-semibold mb-4">Non-Essential Analytics</h2>
         <p className="mb-4">
           We use Google Analytics to understand how users interact with our game. This is not essential for the game to function and requires your consent. We have configured Google Analytics to minimize data collection:
@@ -75,12 +87,12 @@ export default function PrivacyPolicy() {
         <p className="mb-4">
           You can opt-out of analytics tracking using the cookie consent banner. This will not affect the game&apos;s functionality. We implement Google&apos;s Consent Mode to ensure no cookies are set until you provide consent.
         </p>
-        <p className="mb-4 text-sm text-gray-600">
+        <p className="mb-4 text-sm opacity-75">
           Note: Analytics tracking is optional and requires your explicit consent.
         </p>
       </section>
 
-      <section className="mb-8">
+      <section className="mb-8 theme-panel p-4 rounded-lg">
         <h2 className="text-2xl font-semibold mb-4">Managing Your Cookie Preferences</h2>
         <p className="mb-4">
           You can change your cookie preferences at any time:
@@ -99,7 +111,7 @@ export default function PrivacyPolicy() {
               }
             }
           }}
-          className="px-4 py-2 text-sm font-medium text-white bg-[var(--theme-success)] hover:opacity-80 rounded-md"
+          className="theme-button hover:theme-button-hover px-4 py-2 text-sm font-medium rounded-md"
         >
           Manage Cookie Preferences
         </button>
@@ -128,7 +140,7 @@ export default function PrivacyPolicy() {
         </p>
       </section> */}
 
-      <section className="mb-8">
+      <section className="mb-8 theme-panel p-4 rounded-lg">
         <h2 className="text-2xl font-semibold mb-4">Your Rights</h2>
         <p className="mb-4">
           Under GDPR, you have the right to:
@@ -139,12 +151,12 @@ export default function PrivacyPolicy() {
           <li>Opt-out of analytics tracking</li>
           <li>Withdraw consent at any time</li>
         </ul>
-        <p className="mb-4 text-sm text-gray-600">
+        <p className="mb-4 text-sm opacity-75">
           Note: Essential functional storage cannot be disabled as it is required for the game to work.
         </p>
       </section>
 
-      <section className="mb-8">
+      <section className="mb-8 theme-panel p-4 rounded-lg">
         <h2 className="text-2xl font-semibold mb-4">Data Retention</h2>
         <p className="mb-4">
           Game data is stored locally on your device and can be cleared by:
@@ -153,19 +165,19 @@ export default function PrivacyPolicy() {
           <li>Clearing your browser&apos;s local storage</li>
           <li>Using the browser&apos;s &quot;Clear Site Data&quot; option</li>
         </ul>
-        <p className="mb-4 text-sm text-gray-600">
+        <p className="mb-4 text-sm opacity-75">
           Note: Clearing this data will reset your game progress and preferences.
         </p>
       </section>
 
-      <section className="mb-8">
+      <section className="mb-8 theme-panel p-4 rounded-lg">
         <h2 className="text-2xl font-semibold mb-4">Contact</h2>
         <p className="mb-4">
           If you have any questions about this privacy policy please contact us at contact@launchcraft.co.uk.
         </p>
       </section>
 
-      <p className="text-sm text-gray-500">
+      <p className="text-sm opacity-75">
         Last updated: {new Date().toLocaleDateString()}
       </p>
     </main>
