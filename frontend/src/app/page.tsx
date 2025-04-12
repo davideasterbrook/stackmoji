@@ -7,6 +7,7 @@ import SelectedEmojisDisplay from '@/components/SelectedEmojisDisplay';
 import GameControls from '@/components/GameControls';
 import GuessHistory from '@/components/GuessHistory';
 import HelpModal from '@/components/HelpModal';
+import { trackPageView, trackEvent } from '@/app/analytics';
 
 
 function useTimeUntilMidnightUTC() {
@@ -281,13 +282,19 @@ export default function Home() {
     if (correctCount === dailyGame.required_count) {
       setIsGameComplete(true);
       setHasWon(true);
-      // Increment streak on win
+      trackEvent('game_won', { 
+        attempts: guesses.length + 1,
+        guessHistory: guessHistory
+      });
       const newStreak = streak + 1;
       setStreak(newStreak);
     } else if (newAttemptsLeft === 0) {
       setIsGameComplete(true);
       setHasWon(false);
-      // Reset streak on loss
+      trackEvent('game_lost', {
+        finalAttempts: guesses.length + 1,
+        guessHistory: guessHistory
+      });
       setStreak(0);
     }
   };
@@ -315,16 +322,27 @@ export default function Home() {
         await navigator.share({
           text: text,
         });
+        trackEvent('share_results', {
+          method: 'share_api',
+          won: hasWon,
+          attempts: guessHistory.length
+        });
       } else {
-        // Fallback to clipboard if Web Share API is not available
         await navigator.clipboard.writeText(text);
-        alert('📋 ✅');  // "Copied to clipboard!"
+        alert('📋 ✅');
+        trackEvent('share_results', {
+          method: 'clipboard',
+          won: hasWon,
+          attempts: guessHistory.length
+        });
       }
     } catch (error) {
-      // Only log and show error if it's not a share cancellation
       if (error instanceof Error && error.name !== 'AbortError') {
         console.error('Error sharing:', error);
-        alert('❌ 📋');  // "Failed to copy"
+        alert('❌ 📋');
+        trackEvent('share_failed', {
+          error: error.message
+        });
       }
     }
   };
@@ -384,6 +402,11 @@ export default function Home() {
 
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
+  // Add page view tracking
+  useEffect(() => {
+    trackPageView('/');
+  }, []);
+
   if (isLoading) {
     return (
       <main 
@@ -398,11 +421,12 @@ export default function Home() {
   if (!dailyGame) return null;
 
   return (
-    <main className="h-screen w-screen p-4 flex items-center justify-center overflow-hidden theme-container">
-      <div className="absolute top-4 left-4 flex gap-2">
+    <main className="h-screen w-screen p-4 flex items-center justify-center overflow-hidden theme-container" aria-label="Emoji Shadows Game">
+      <header className="absolute top-4 left-4 flex gap-2">
         <button
           onClick={() => setIsDarkMode(!isDarkMode)}
           className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
+          aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
         >
           {isDarkMode ? '☀️' : '🌙'}
         </button>
@@ -418,6 +442,21 @@ export default function Home() {
               localStorage.removeItem('lastFetchTime');
               localStorage.removeItem('gameState');
               
+              // Clear cookie consent
+              localStorage.removeItem('cookieConsent');
+              
+              // Reset Google Consent Mode to default denied state
+              if (typeof window !== 'undefined') {
+                const win = window as Window & { gtag?: (command: string, action: string, params: object) => void };
+                if (win.gtag) {
+                  win.gtag('consent', 'update', {
+                    'analytics_storage': 'denied',
+                    'functionality_storage': 'denied',
+                    'personalization_storage': 'denied'
+                  });
+                }
+              }
+              
               // Restore streak
               if (currentStreak) {
                 localStorage.setItem('streak', currentStreak);
@@ -427,13 +466,14 @@ export default function Home() {
             }}
             className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
             title="Dev: Reset Game"
+            aria-label="Developer: Reset Game"
           >
             🔄
           </button>
         )}
-      </div>
+      </header>
 
-      <div className="absolute top-4 right-4">
+      <nav className="absolute top-4 right-4">
         <button
           onClick={() => setIsHelpModalOpen(true)}
           className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
@@ -441,22 +481,22 @@ export default function Home() {
         >
           ℹ️
         </button>
-      </div>
+      </nav>
 
       <HelpModal 
         isOpen={isHelpModalOpen}
         onClose={() => setIsHelpModalOpen(false)}
       />
 
-      <div className="w-full max-w-2xl h-full flex flex-col gap-2">
-        <div className="rounded-2xl p-4 theme-panel h-[40%]">
+      <div className="w-full max-w-md h-full flex flex-col gap-2">
+        <section className="rounded-2xl p-4 theme-panel h-[35%]" aria-label="Shadow Display">
           <ShadowDisplay
             emojis={dailyGame.answer}
             hiddenEmojis={hiddenEmojis}
           />
-        </div>
+        </section>
 
-        <div className="theme-panel rounded-2xl p-4 h-[10%]">
+        <section className="theme-panel rounded-2xl p-4 h-[10%]" aria-label="Selected Emojis">
           <SelectedEmojisDisplay
             emojis={selectedEmojis}
             revealedEmojis={revealedEmojis}
@@ -469,9 +509,9 @@ export default function Home() {
             guesses={guesses}
             hints={hints}
           />
-        </div>
+        </section>
 
-        <div className="theme-panel rounded-2xl p-4 h-[50%]">
+        <section className="theme-panel rounded-2xl p-4 h-[50%]" aria-label={isGameComplete ? "Game Results" : "Game Controls"}>
           {!isGameComplete ? (
             <GameControls
               options={dailyGame.options}
@@ -494,8 +534,9 @@ export default function Home() {
               hiddenEmojis={hiddenEmojis}
             />
           )}
-        </div>
+        </section>
       </div>
+      
     </main>
   );
 }

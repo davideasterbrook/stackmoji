@@ -72,7 +72,5 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 # TODO
 
  - Ads
- - force emoji type
- - track users
- - update help modal structure - introduce x to close and move the flag to bottom right
- - get on google
+ - force emoji type - explore options here
+ - track users - requires validating
