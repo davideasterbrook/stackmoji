@@ -26,7 +26,7 @@ export default function GuessHistory({
         <div className="text-3xl mb-2 flex items-center gap-4">
           {didSolve ? '🥳' : '😭'}
           <span className="text-2xl">•</span>
-          <span>🗓️ {streak}</span>
+          <span>🔥 {streak}</span>
         </div>
         <div className="space-y-2">
           {guesses.map((guess, guessIndex) => (
@@ -61,7 +61,8 @@ export default function GuessHistory({
         </div>
         <button
           onClick={onShare}
-          className="bg-[var(--theme-button)] hover:bg-[var(--theme-button-hover)] rounded-xl p-4 transition-colors"
+          className="bg-[var(--theme-button)] hover:bg-[var(--theme-button-hover)] rounded-xl p-4 transition-colors flex items-center gap-2 w-28 justify-center gentle-pulse"
+          aria-label="Share your results"
         >
           <svg 
             width="24" 

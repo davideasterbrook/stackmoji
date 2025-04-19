@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     default: 'Stackmoji',
     template: '%s | Stackmoji',
   },
-  description: 'Stack emojis to victory in this fun web game',
+  description: 'Challenge yourself with a fun daily emoji puzzle. Guess which emojis are creating the stack and track your streak!',
   keywords: 'emoji game, daily puzzle, emoji challenge',
   applicationName: 'Stackmoji',
   authors: [{ name: 'Stackmoji' }],
@@ -24,14 +24,14 @@ export const metadata: Metadata = {
     address: false,
     email: false,
   },
-  metadataBase: new URL('https://stackmoji.com'),
+  metadataBase: new URL('https://www.stackmoji.com'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     title: 'Stackmoji | 🙈👀❓',
     description: 'Challenge yourself with a daily emoji puzzle. Guess which emojis are creating the stack and track your streak!',
-    url: 'https://stackmoji.com',
+    url: 'https://www.stackmoji.com',
     siteName: 'Stackmoji',
     images: [
       {
@@ -141,11 +141,11 @@ export default function RootLayout({
                 'ratingValue': '4.8',
                 'ratingCount': '156',
               },
-              'screenshot': 'https://stackmoji.com/screenshot.png',
+              'screenshot': 'https://www.stackmoji.com/screenshot.png',
               'author': {
                 '@type': 'Organization',
                 'name': 'Stackmoji',
-                'url': 'https://stackmoji.com',
+                'url': 'https://www.stackmoji.com',
               },
             }),
           }}

@@ -74,3 +74,5 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
  - Ads
  - force emoji type - explore options here
  - track users - requires validating
+ - Daily streak to share message
+ - Daily streak ends on a missed day

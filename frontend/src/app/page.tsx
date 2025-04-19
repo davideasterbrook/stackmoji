@@ -57,6 +57,7 @@ export default function Home() {
   const timeUntilMidnight = useTimeUntilMidnightUTC();
   const [hiddenEmojis, setHiddenEmojis] = useState<Set<string>>(new Set());
   const [streak, setStreak] = useState<number>(0);
+  const [lastPlayedDate, setLastPlayedDate] = useState<string>('');
 
   // Use our theme context hook
   const { toggleTheme, isDarkMode } = useTheme();
@@ -66,12 +67,15 @@ export default function Home() {
 
   useEffect(() => {
     const savedStreak = localStorage.getItem('streak');
+    const savedLastPlayed = localStorage.getItem('lastPlayedDate');
     setStreak(Number(savedStreak) || 0);
+    setLastPlayedDate(savedLastPlayed || '');
   }, []);
 
   useEffect(() => {
     localStorage.setItem('streak', streak.toString());
-  }, [streak]);
+    localStorage.setItem('lastPlayedDate', lastPlayedDate);
+  }, [streak, lastPlayedDate]);
 
   useEffect(() => {
     const fetchDailyGame = async () => {
@@ -249,6 +253,28 @@ export default function Home() {
     );
     setSelectedEmojis(newSelectedEmojis);
 
+    // Get today's date in YYYY-MM-DD format
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+    
+    // Check if this is first guess of the day
+    if (guesses.length === 0) {
+      // Check if we should continue the streak
+      if (lastPlayedDate) {
+        const lastPlayed = new Date(lastPlayedDate);
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        
+        // If last played date was not yesterday, reset streak
+        if (lastPlayed.toISOString().split('T')[0] !== yesterday.toISOString().split('T')[0]) {
+          setStreak(0);
+        }
+      }
+      
+      // Update the last played date to today
+      setLastPlayedDate(todayString);
+    }
+
     if (correctCount === dailyGame.required_count) {
       setIsGameComplete(true);
       setHasWon(true);
@@ -285,8 +311,8 @@ export default function Home() {
       .join('\n');
 
     const gameUrl = window.location.origin;
-    const text = `${hasWon ? '✅ '+ guessHistory.length : '❌'}/${3}\n\n${resultEmojis}\n\n🎮: ${gameUrl}`;
-    
+    const text = `${hasWon ? '✅ '+ guessHistory.length : '❌'}/${3}\n🔥: ${streak}\n\n${resultEmojis}\n\n🎮: ${gameUrl}`;
+ 
     try {
       if (navigator.share) {
         await navigator.share({
@@ -295,7 +321,8 @@ export default function Home() {
         trackEvent('share_results', {
           method: 'share_api',
           won: hasWon,
-          attempts: guessHistory.length
+          attempts: guessHistory.length,
+          streak: streak
         });
       } else {
         await navigator.clipboard.writeText(text);
@@ -303,7 +330,8 @@ export default function Home() {
         trackEvent('share_results', {
           method: 'clipboard',
           won: hasWon,
-          attempts: guessHistory.length
+          attempts: guessHistory.length,
+          streak: streak
         });
       }
     } catch (error) {

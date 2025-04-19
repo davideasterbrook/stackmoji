@@ -19,14 +19,21 @@ export default function GameControls({
   onEmojiSelect,
   onSubmitGuess
 }: GameControlsProps) {
+  // Check if button should be enabled (all slots filled)
+  const isButtonEnabled = selectedEmojis.length === requiredCount && !selectedEmojis.includes('');
+  // Check if it's the first attempt (3 attempts left)
+  const isFirstAttempt = attemptsLeft === 3;
+  // Apply gentle pulse animation only if button is enabled and it's the first attempt
+  const shouldPulse = isButtonEnabled && isFirstAttempt;
+
   return (
     <div className="h-full flex flex-col gap-4">
       <button
         onClick={onSubmitGuess}
-        disabled={selectedEmojis.length !== requiredCount || selectedEmojis.includes('')}
+        disabled={!isButtonEnabled}
         className={`h-12 rounded-xl text-3xl transition-colors w-[calc(12rem+1rem)] mx-auto border border-[var(--theme-border)] ${
-          selectedEmojis.length === requiredCount && !selectedEmojis.includes('')
-            ? 'theme-button hover:theme-button-hover'
+          isButtonEnabled
+            ? `theme-button hover:theme-button-hover ${shouldPulse ? 'gentle-pulse' : ''}`
             : 'bg-transparent disabled:opacity-25 disabled:cursor-not-allowed'
         }`}
       >

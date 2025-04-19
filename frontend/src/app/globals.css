@@ -125,7 +125,22 @@ body {
   min-height: 100vh;
 }
 
-/* Add any existing animation keyframes or other CSS here */
+/* Animation Keyframes */
+@keyframes gentle-pulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Reusable animation classes */
+.gentle-pulse {
+  animation: gentle-pulse 2s infinite ease-in-out;
+}
+
+.gentle-pulse:hover {
+  animation: none;
+  transform: scale(1.05);
+}
 
 /* Add classes that use the CSS variables */
 .theme-container {
