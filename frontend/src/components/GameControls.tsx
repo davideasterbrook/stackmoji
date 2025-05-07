@@ -33,7 +33,7 @@ export default function GameControls({
         disabled={!isButtonEnabled}
         className={`h-12 rounded-xl text-3xl transition-colors w-[calc(12rem+1rem)] mx-auto border border-[var(--theme-border)] ${
           isButtonEnabled
-            ? `theme-button hover:theme-button-hover ${shouldPulse ? 'gentle-pulse' : ''}`
+            ? `theme-button hover:theme-button-hover button-shine ${shouldPulse ? 'gentle-pulse' : ''}`
             : 'bg-transparent disabled:opacity-25 disabled:cursor-not-allowed'
         }`}
       >

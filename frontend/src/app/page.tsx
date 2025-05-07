@@ -282,8 +282,7 @@ export default function Home() {
         attempts: guesses.length + 1,
         guessHistory: guessHistory
       });
-      const newStreak = streak + 1;
-      setStreak(newStreak);
+      setStreak(curStreak => curStreak + 1);
     } else if (newAttemptsLeft === 0) {
       setIsGameComplete(true);
       setHasWon(false);

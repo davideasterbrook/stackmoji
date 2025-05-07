@@ -23,6 +23,18 @@ export default function CookieConsent() {
           });
         }
       }
+    } else if (consent === 'false') {
+      // Ensure consent remains denied if previously rejected
+      if (typeof window !== 'undefined') {
+        const win = window as Window & { gtag?: (command: string, action: string, params: object) => void };
+        if (win.gtag) {
+          win.gtag('consent', 'update', {
+            'analytics_storage': 'denied',
+            'functionality_storage': 'denied',
+            'personalization_storage': 'denied'
+          });
+        }
+      }
     }
   }, []);
 
@@ -61,6 +73,10 @@ export default function CookieConsent() {
         });
       }
     }
+    
+    // Even with rejection, we can still track minimal anonymous data
+    // This doesn't use cookies due to our consent settings
+    trackEvent('cookie_consent', { action: 'rejected' });
   };
 
   const handleManagePreferences = () => {
@@ -92,7 +108,7 @@ export default function CookieConsent() {
         <div className="flex-1">
           <p className="text-sm">
             We use cookies for analytics to improve your experience. Your data is stored locally and never shared. 
-            Rejecting cookies will not affect site functionality.
+            Rejecting cookies will not affect site functionality or core game stats.
             <a href="/privacy" className="text-[var(--theme-success)] hover:opacity-80 ml-1">
               Learn more
             </a>

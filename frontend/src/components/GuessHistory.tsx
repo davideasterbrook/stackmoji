@@ -61,7 +61,7 @@ export default function GuessHistory({
         </div>
         <button
           onClick={onShare}
-          className="bg-[var(--theme-button)] hover:bg-[var(--theme-button-hover)] rounded-xl p-4 transition-colors flex items-center gap-2 w-28 justify-center gentle-pulse"
+          className="bg-[var(--theme-button)] hover:bg-[var(--theme-button-hover)] rounded-xl p-4 transition-colors flex items-center gap-2 w-28 justify-center gentle-pulse button-shine"
           aria-label="Share your results"
         >
           <svg 
