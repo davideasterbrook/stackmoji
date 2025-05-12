@@ -133,9 +133,9 @@ body {
 
 /* Animation Keyframes */
 @keyframes gentle-pulse {
-  0% { opacity: 1; transform: scale(1);}
-  50% { opacity: 1; transform: scale(1.1);}
-  100% { opacity: 1; transform: scale(1);}
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
 }
 
 @keyframes shine {
@@ -149,13 +149,17 @@ body {
 
 /* Reusable animation classes */
 .gentle-pulse {
-  animation: gentle-pulse 2s infinite ease-in-out;
+  /* Fallback state - ensures button is always visible */
+  transform: scale(1);
+  /* Only apply animation if device supports it */
+  @media (prefers-reduced-motion: no-preference) {
+    animation: gentle-pulse 2s infinite ease-in-out;
+  }
 }
 
 .gentle-pulse:hover {
   animation: none;
   transform: scale(1);
-  /* box-shadow: 0 0 8px 2px rgba(108, 169, 101, 0.6); */
 }
 
 .button-shine {

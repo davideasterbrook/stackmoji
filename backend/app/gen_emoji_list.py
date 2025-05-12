@@ -25,6 +25,7 @@ def get_all_base_emojis() -> List[str]:
         "🧔", "👱", "🫅",
         "💽", "🎛", "🗄", "💾", "📰", "⌛", "🗓", "🪫",
         "🥈", "🥉",
+        "🏔️",
     }
 
     # Color variants to exclude (keep red versions)

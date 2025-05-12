@@ -74,3 +74,4 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
  - Ads
  - force emoji type - explore options here
  - track users - requires validating
+ - make sure emojis selected for game are unique and no repeats
