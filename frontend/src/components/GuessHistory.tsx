@@ -43,7 +43,7 @@ export default function GuessHistory({
                 return (
                   <div 
                     key={emojiIndex}
-                    className={`w-12 h-12 flex items-center justify-center text-2xl rounded-xl ${backgroundColor}`}
+                    className={`w-12 h-12 flex items-center justify-center text-3xl rounded-xl ${backgroundColor}`}
                   >
                     {emoji}
                   </div>

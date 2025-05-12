@@ -69,7 +69,7 @@ export default function SelectedEmojisDisplay({
                   onToggleHidden(emoji);
                 }
               }}
-              className={`w-12 h-12 flex items-center justify-center text-2xl rounded-xl transition-colors
+              className={`w-12 h-12 flex items-center justify-center text-3xl rounded-xl transition-colors
                 ${isGameComplete
                   ? `cursor-pointer ${buttonColor} ${isHidden ? 'opacity-50' : ''}`
                   : isRevealed

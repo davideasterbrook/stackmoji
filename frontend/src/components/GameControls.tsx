@@ -45,7 +45,7 @@ export default function GameControls({
             key={index}
             onClick={() => onEmojiSelect(emoji)}
             disabled={revealedEmojis.has(emoji) || incorrectEmojis.has(emoji)}
-            className={`w-12 h-12 flex items-center justify-center text-2xl rounded-xl transition-colors border border-[var(--theme-border)] ${
+            className={`w-12 h-12 flex items-center justify-center text-3xl rounded-xl transition-colors border border-[var(--theme-border)] ${
               revealedEmojis.has(emoji)
                 ? 'success-bg border-none'
                 : incorrectEmojis.has(emoji)
