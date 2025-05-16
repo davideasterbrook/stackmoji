@@ -67,7 +67,7 @@ export default function StackmojiAnnouncement() {
     >
       <div className="flex flex-col items-center gap-3">
         <div className="flex items-center gap-2">
-          <span className="text-xl animate-bounce">🎮</span>
+          <span className="text-xl animate-bounce" data-emoji="true">🎮</span>
           <h3 className="text-lg font-medium">stackmoji.com is live!</h3>
         </div>
         <p className="text-sm text-center">

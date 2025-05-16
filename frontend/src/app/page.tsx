@@ -9,7 +9,6 @@ import GuessHistory from '@/components/GuessHistory';
 import HelpModal from '@/components/HelpModal';
 import StackmojiAnnouncement from '@/components/StackmojiAnnouncement';
 import { trackPageView, trackEvent } from '@/app/analytics';
-import { useTheme } from './ThemeProvider';
 
 function useTimeUntilMidnightUTC() {
   const [timeLeft, setTimeLeft] = useState('');
@@ -59,8 +58,7 @@ export default function Home() {
   const [streak, setStreak] = useState<number>(0);
   const [lastPlayedDate, setLastPlayedDate] = useState<string>('');
 
-  // Use our theme context hook
-  const { toggleTheme, isDarkMode } = useTheme();
+  // Font loading state is now handled by the HeaderControls component
 
   const [guesses, setGuesses] = useState<GuessData[]>([]);
   const [hints, setHints] = useState<HintData[]>([]);
@@ -406,16 +404,15 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <main className="h-screen w-screen p-4 flex items-center justify-center overflow-hidden theme-container">
-        <div className="text-4xl animate-bounce">🎮</div>
+      <main className="h-screen w-screen p-4 flex flex-col items-center justify-center overflow-hidden theme-container">
+        <div className="text-4xl animate-bounce mb-4" style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI Emoji"' }}>
+          🎮
+        </div>
       </main>
     );
   }
 
   if (!dailyGame) return null;
-
-  // Show sun emoji in dark mode (to switch to light), moon in light mode (to switch to dark)
-  const themeIcon = isDarkMode ? '☀️' : '🌙';
 
   return (
     <main 
@@ -423,56 +420,7 @@ export default function Home() {
       aria-label="Emoji Shadows Game"
       suppressHydrationWarning
     >
-      <header className="absolute top-4 left-4 flex gap-2">
-        <button
-          onClick={toggleTheme}
-          className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
-          aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-        >
-          {themeIcon}
-        </button>
-        
-        {process.env.NODE_ENV === 'development' && (
-          <button
-            onClick={() => {
-              // Save current streak
-              const currentStreak = localStorage.getItem('streak');
-              
-              // Clear game data
-              localStorage.removeItem('dailyGame');
-              localStorage.removeItem('lastFetchTime');
-              localStorage.removeItem('gameState');
-              
-              // Clear cookie consent
-              localStorage.removeItem('cookieConsent');
-              
-              // Reset Google Consent Mode to default denied state
-              if (typeof window !== 'undefined') {
-                const win = window as Window & { gtag?: (command: string, action: string, params: object) => void };
-                if (win.gtag) {
-                  win.gtag('consent', 'update', {
-                    'analytics_storage': 'denied',
-                    'functionality_storage': 'denied',
-                    'personalization_storage': 'denied'
-                  });
-                }
-              }
-              
-              // Restore streak
-              if (currentStreak) {
-                localStorage.setItem('streak', currentStreak);
-              }
-              
-              window.location.reload();
-            }}
-            className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
-            title="Dev: Reset Game"
-            aria-label="Developer: Reset Game"
-          >
-            🔄
-          </button>
-        )}
-      </header>
+
 
       <nav className="absolute top-4 right-4">
         <button

@@ -36,6 +36,7 @@ export default function GameControls({
             ? `theme-button hover:theme-button-hover button-shine ${shouldPulse ? 'gentle-pulse' : ''}`
             : 'bg-transparent disabled:opacity-25 disabled:cursor-not-allowed'
         }`}
+        data-emoji="true"
       >
         {'💔'.repeat(3 - attemptsLeft) + '❤️'.repeat(attemptsLeft)}
       </button>
@@ -54,6 +55,7 @@ export default function GameControls({
                 ? 'theme-button hover:theme-button-hover border border-[var(--theme-border)]'
                 : 'bg-transparent hover:bg-opacity-10 hover:theme-button-inactive-hover'
             }`}
+            data-emoji="true"
           >
             {emoji}
           </button>

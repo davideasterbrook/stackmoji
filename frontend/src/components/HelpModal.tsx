@@ -318,9 +318,10 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value)}
                 className="theme-button p-1 rounded-lg border theme-button-hover cursor-pointer w-12 h-8 text-center"
+                data-emoji="true"
               >
                 {sortedLanguages.map((lang) => (
-                  <option key={lang.code} value={lang.code}>
+                  <option key={lang.code} value={lang.code} data-emoji="true">
                     {lang.flag} {lang.name}
                   </option>
                 ))}

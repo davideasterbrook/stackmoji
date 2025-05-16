@@ -78,6 +78,7 @@ export default function SelectedEmojisDisplay({
                       ? 'theme-button hover:theme-button-hover border border-[var(--theme-border)]' 
                       : 'bg-transparent hover:bg-opacity-10 hover:theme-button-inactive-hover border border-[var(--theme-border)]'
                 }`}
+              data-emoji="true"
             >
               {emoji || '❓'}
             </div>
@@ -90,6 +91,7 @@ export default function SelectedEmojisDisplay({
         <button
           onClick={onReset}
           className="absolute right-0 w-12 h-12 flex items-center justify-center text-2xl theme-button hover:theme-button-hover rounded-xl transition-colors"
+          data-emoji="true"
         >
           🔄
         </button>

@@ -24,9 +24,12 @@ export default function GuessHistory({
     <div className="h-full flex flex-col items-center justify-between">
       <div className="flex flex-col items-center gap-4">
         <div className="text-3xl mb-2 flex items-center gap-4">
-          {didSolve ? '🥳' : '😭'}
+          <span data-emoji="true">{didSolve ? '🥳' : '😭'}</span>
           <span className="text-2xl">•</span>
-          <span>🔥 {streak}</span>
+          <div className="flex items-center gap-1">
+            <span data-emoji="true">🔥</span>
+            <span>{streak}</span>
+          </div>
         </div>
         <div className="space-y-2">
           {guesses.map((guess, guessIndex) => (
@@ -44,6 +47,7 @@ export default function GuessHistory({
                   <div 
                     key={emojiIndex}
                     className={`w-12 h-12 flex items-center justify-center text-3xl rounded-xl ${backgroundColor}`}
+                    data-emoji="true"
                   >
                     {emoji}
                   </div>
@@ -56,7 +60,7 @@ export default function GuessHistory({
 
       <div className="flex items-center gap-8">
         <div className="flex flex-col items-center">
-          <div className="text-2xl mb-1">⏭️ 🎮</div>
+          <div className="text-2xl mb-1" data-emoji="true">⏭️ 🎮</div>
           <div className="text-xl font-mono">{timeUntilMidnight}</div>
         </div>
         <button

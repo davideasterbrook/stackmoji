@@ -24,7 +24,7 @@ export default function ResultsModal({
       <div className="bg-[#1a1f2e] rounded-2xl p-6 max-w-sm w-full">
 
         {/* Result Emoji - Only show win/lose emoji */}
-        <div className="text-center text-6xl mb-6">
+        <div className="text-center text-6xl mb-6" data-emoji="true">
           {hasWon ? '🎉' : '😢'}
         </div>
 
@@ -38,6 +38,7 @@ export default function ResultsModal({
                   className={`w-12 h-12 flex items-center justify-center text-2xl rounded-xl ${
                     correctEmojis.has(emoji) ? 'bg-[var(--theme-success)]' : 'bg-[var(--theme-error)]'
                   }`}
+                  data-emoji="true"
                 >
                   {emoji}
                 </div>
@@ -51,12 +52,14 @@ export default function ResultsModal({
           <button
             onClick={onShare}
             className="bg-[#232733] hover:bg-[#2a2f3e] rounded-xl p-4 text-2xl transition-colors"
+            data-emoji="true"
           >
             📋
           </button>
           <button
             onClick={onClose}
             className="bg-[#232733] hover:bg-[#2a2f3e] rounded-xl p-4 text-2xl transition-colors"
+            data-emoji="true"
           >
             ❌
           </button>

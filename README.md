@@ -75,3 +75,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
  - force emoji type - explore options here
  - track users - requires validating
  - make sure emojis selected for game are unique and no repeats
+ - clean up code
+ - toggle for default text face for emojis
+ 

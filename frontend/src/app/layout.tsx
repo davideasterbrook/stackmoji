@@ -3,6 +3,8 @@ import "./globals.css";
 import Script from 'next/script'
 import CookieConsent from '@/components/CookieConsent'
 import ThemeProvider from './ThemeProvider';
+import FontProvider from './EmojiFontProvider';
+import HeaderControls from '@/components/HeaderControls';
 
 export const metadata: Metadata = {
   title: {
@@ -69,6 +71,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Force load Noto font */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          .force-font-load {
+            opacity: 0;
+            position: absolute;
+            pointer-events: none;
+            font-family: 'Noto Color Emoji';
+            visibility: hidden;
+          }
+        `}} />
+        
         {/* Minimal theme script - Just prevents flash by setting initial colors */}
         <script 
           dangerouslySetInnerHTML={{
@@ -84,6 +97,16 @@ export default function RootLayout({
                 document.documentElement.setAttribute('data-theme', theme);
               } catch (e) {
                 console.error('Theme initialization error:', e);
+              }
+
+              // Initialize font preference immediately
+              try {
+                const storedFont = localStorage.getItem('useNotoFont');
+                if (storedFont === 'true') {
+                  document.documentElement.classList.add('use-noto-font');
+                }
+              } catch (e) {
+                console.error('Font initialization error:', e);
               }
             `
           }}
@@ -152,9 +175,15 @@ export default function RootLayout({
         />
       </head>
       <body>
+        {/* Hidden element to force font load */}
+        <div className="force-font-load" aria-hidden="true">🎮</div>
+        
         <ThemeProvider>
-          {children}
-          <CookieConsent />
+          <FontProvider>
+            <HeaderControls />
+            {children}
+            <CookieConsent />
+          </FontProvider>
         </ThemeProvider>
       </body>
     </html>
