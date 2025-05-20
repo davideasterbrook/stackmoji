@@ -1,2 +1,2 @@
-emoji==2.10.1
 aws-lambda-powertools==3.8.0
+fonttools==4.57.0

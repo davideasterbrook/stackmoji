@@ -18,6 +18,7 @@ mkdir -p build
 echo
 echo "Copying the Lambda function"
 cp ../app/update_daily_game.py build/
+cp ../app/emoji_font.py build/
 echo "Copying the emoji list"
 cp ../app/base_emojis.json build/
 

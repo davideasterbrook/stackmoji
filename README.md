@@ -77,4 +77,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
  - make sure emojis selected for game are unique and no repeats
  - clean up code
  - toggle for default text face for emojis
- 
+
+
+ - UPDATED GAME DATA FORMAT - NEED TO UPDATE PULL FROM FRONT END
