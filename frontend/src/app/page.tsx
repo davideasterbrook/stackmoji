@@ -9,6 +9,7 @@ import GuessHistory from '@/components/GuessHistory';
 import HelpModal from '@/components/HelpModal';
 import StackmojiAnnouncement from '@/components/StackmojiAnnouncement';
 import { trackPageView, trackEvent } from '@/app/analytics';
+import { loadDailyGameData } from '@/utils/cacheManager';
 
 function useTimeUntilMidnightUTC() {
   const [timeLeft, setTimeLeft] = useState('');
@@ -79,58 +80,29 @@ export default function Home() {
     const fetchDailyGame = async () => {
       try {
         setIsLoading(true);
-        // Check if we have cached data
-        const cached = localStorage.getItem('dailyGame');
-        const lastFetch = localStorage.getItem('lastFetchTime');
-        const now = new Date();
+        const { gameData, isNewGame } = await loadDailyGameData();
         
-        // If we have cached data, check if it's from the current day (UTC)
-        if (cached && lastFetch) {
-          const lastFetchDate = new Date(parseInt(lastFetch));
-          const isSameDay = 
-            lastFetchDate.getUTCFullYear() === now.getUTCFullYear() &&
-            lastFetchDate.getUTCMonth() === now.getUTCMonth() &&
-            lastFetchDate.getUTCDate() === now.getUTCDate();
-
-          if (isSameDay) {
-            const cachedGame = JSON.parse(cached);
-            setDailyGame(cachedGame);
-            return;
-          }
+        if (!gameData) {
+          console.error('Failed to load game data');
+          return;
         }
 
-        // If no cache or cache is outdated, fetch new data
-        const response = await fetch('https://stackmoji-daily-game.s3.eu-west-1.amazonaws.com/daily-game.json', {
-          headers: {
-            'Origin': window.location.origin
-          }
-        });
-        const data = await response.json();
-        
-        const gameData = {
-          options: data.options,
-          answer: data.answer,
-          required_count: data.answer.length
-        };
-
-        // Only reset game state when we get a new game
-        localStorage.removeItem('gameState');
-        setRevealedEmojis(new Set());
-        setIncorrectEmojis(new Set());
-        setGuessHistory([]);
-        setAttemptsLeft(3);
-        setIsGameComplete(false);
-        setHasWon(false);
-        setHiddenEmojis(new Set());
-        setGuesses([]);
-        setHints([]);
-        
-        // Initialize selectedEmojis with empty strings based on required count
-        setSelectedEmojis(new Array(gameData.required_count).fill(''));
-        
-        // Save to localStorage
-        localStorage.setItem('dailyGame', JSON.stringify(gameData));
-        localStorage.setItem('lastFetchTime', now.getTime().toString());
+        if (isNewGame) {
+          // Reset game state for new game
+          localStorage.removeItem('gameState');
+          setRevealedEmojis(new Set());
+          setIncorrectEmojis(new Set());
+          setGuessHistory([]);
+          setAttemptsLeft(3);
+          setIsGameComplete(false);
+          setHasWon(false);
+          setHiddenEmojis(new Set());
+          setGuesses([]);
+          setHints([]);
+          
+          // Initialize selectedEmojis with empty strings based on required count
+          setSelectedEmojis(new Array(gameData.required_count).fill(''));
+        }
         
         setDailyGame(gameData);
       } catch (error) {
@@ -308,12 +280,12 @@ export default function Home() {
       .join('\n');
 
     const gameUrl = window.location.origin;
-    const text = `${hasWon ? '✅ '+ guessHistory.length : '❌'}/${3}\n🔥: ${streak}\n\n${resultEmojis}\n\n🎮: ${gameUrl}`;
+    const shareText = `${hasWon ? '✅ '+ guessHistory.length : '❌'}/${3}\n🔥: ${streak}\n\n${resultEmojis}\n\n🎮: ${gameUrl}`;
  
     try {
       if (navigator.share) {
         await navigator.share({
-          text: text,
+          text: shareText,
         });
         trackEvent('share_results', {
           method: 'share_api',
@@ -322,7 +294,7 @@ export default function Home() {
           streak: streak
         });
       } else {
-        await navigator.clipboard.writeText(text);
+        await navigator.clipboard.writeText(shareText);
         alert('📋 ✅');
         trackEvent('share_results', {
           method: 'clipboard',
@@ -465,7 +437,7 @@ export default function Home() {
         <section className="theme-panel rounded-2xl p-4 h-[50%]" aria-label={isGameComplete ? "Game Results" : "Game Controls"}>
           {!isGameComplete ? (
             <GameControls
-              options={dailyGame.options}
+              emojis={dailyGame.emojis}
               selectedEmojis={selectedEmojis}
               revealedEmojis={revealedEmojis}
               incorrectEmojis={incorrectEmojis}

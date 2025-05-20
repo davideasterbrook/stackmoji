@@ -1,5 +1,5 @@
 interface GameControlsProps {
-  options: string[];
+  emojis: string[];
   selectedEmojis: string[];
   revealedEmojis: Set<string>;
   incorrectEmojis: Set<string>;
@@ -10,7 +10,7 @@ interface GameControlsProps {
 }
 
 export default function GameControls({
-  options,
+  emojis,
   selectedEmojis,
   revealedEmojis,
   incorrectEmojis,
@@ -31,22 +31,21 @@ export default function GameControls({
       <button
         onClick={onSubmitGuess}
         disabled={!isButtonEnabled}
-        className={`h-12 rounded-xl text-3xl transition-colors w-[calc(12rem+1rem)] mx-auto border border-[var(--theme-border)] ${
+        className={`h-12 rounded-xl text-3xl transition-colors w-[calc(12rem+1rem)] mx-auto border border-[var(--theme-border)] stackmoji-font ${
           isButtonEnabled
             ? `theme-button hover:theme-button-hover button-shine ${shouldPulse ? 'gentle-pulse' : ''}`
             : 'bg-transparent disabled:opacity-25 disabled:cursor-not-allowed'
         }`}
-        data-emoji="true"
       >
         {'💔'.repeat(3 - attemptsLeft) + '❤️'.repeat(attemptsLeft)}
       </button>
       <div className="grid grid-cols-5 gap-1 w-fit mx-auto">
-        {options.map((emoji, index) => (
+        {emojis.map((emoji, index) => (
           <button
             key={index}
             onClick={() => onEmojiSelect(emoji)}
             disabled={revealedEmojis.has(emoji) || incorrectEmojis.has(emoji)}
-            className={`w-12 h-12 flex items-center justify-center text-3xl rounded-xl transition-colors border border-[var(--theme-border)] ${
+            className={`w-12 h-12 flex items-center justify-center text-3xl rounded-xl transition-colors border border-[var(--theme-border)] stackmoji-font ${
               revealedEmojis.has(emoji)
                 ? 'success-bg border-none'
                 : incorrectEmojis.has(emoji)
@@ -55,7 +54,6 @@ export default function GameControls({
                 ? 'theme-button hover:theme-button-hover border border-[var(--theme-border)]'
                 : 'bg-transparent hover:bg-opacity-10 hover:theme-button-inactive-hover'
             }`}
-            data-emoji="true"
           >
             {emoji}
           </button>

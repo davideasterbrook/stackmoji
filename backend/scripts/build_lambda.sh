@@ -19,19 +19,29 @@ echo
 echo "Copying the Lambda function"
 cp ../app/update_daily_game.py build/
 cp ../app/emoji_font.py build/
+cp ../app/NotoColorEmoji-Regular.ttf build/
 echo "Copying the emoji list"
 cp ../app/base_emojis.json build/
 
 # Install dependencies from requirements.txt
 echo
 echo "Installing dependencies from requirements.txt"
-pip install -r ../requirements.txt -t build/
+# pip install -r ../requirements.txt -t build/
+
+pip install \
+    --platform manylinux2014_aarch64 \
+    --target build/ \
+    --implementation cp \
+    --python-version 3.12 \
+    --only-binary=:all: --upgrade \
+    -r ../requirements.txt
+# find . -name *.pyc -delete && find . -exec touch -t 201801010000 {} +
 
 # Create the zip file with everything
 echo
 echo "Creating the zip file with everything"
 cd build
-zip -r ../../infra/lambda_function.zip *
+zip -q -r ../../infra/lambda_function.zip *
 
 # Clean up
 echo

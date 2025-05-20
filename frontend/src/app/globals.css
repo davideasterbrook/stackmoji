@@ -3,40 +3,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base emoji font configuration */
-@font-face {
-  font-family: 'Noto Color Emoji';
-  src: url('/fonts/NotoColorEmoji-Regular.ttf') format('truetype');
-  font-display: block;
-}
-
-/* Font settings */
-
-/* Default emoji font stack */
-:root {
-  --emoji-fonts: system-ui, -apple-system, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-}
-
-/* When Noto font is selected */
-html.use-noto-font {
-  --emoji-fonts: "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", system-ui, -apple-system;
-}
-
-/* Apply emoji fonts to all emoji-containing elements */
-[class*="emoji"], 
-.theme-button,
-button,
-[data-emoji="true"] {
-  font-family: var(--emoji-fonts);
-  -webkit-font-feature-settings: "liga" 0, "calt" 0;
-  font-feature-settings: "liga" 0, "calt" 0;
-  text-rendering: optimizeLegibility;
-  /* Prevent layout shift during font load */
-  font-synthesis: none;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 /* Default theme styles (before JavaScript loads) */
 html {
   background-color: var(--theme-bg, #181c21); /* Default to dark theme */
@@ -253,4 +219,8 @@ html, body, .theme-container, .theme-panel, .theme-button {
   --theme-error: var(--error);
   --theme-hint: var(--hint);
   color-scheme: light dark;
+}
+
+.stackmoji-font {
+  font-family: var(--stackmoji-game-font), system-ui, -apple-system, "Segoe UI Emoji";
 }

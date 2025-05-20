@@ -13,11 +13,10 @@ export default function ShadowDisplay({
           <div
             key={index}
             className="absolute"
-            data-emoji="true"
             style={{
               filter: 'brightness(0)',
               fontSize: '25vh',
-              fontFamily: 'var(--emoji-fonts)',
+              fontFamily: 'var(--stackmoji-game-font)',
               WebkitFontFeatureSettings: '"liga" 0, "calt" 0',
               fontFeatureSettings: '"liga" 0, "calt" 0',
               textRendering: 'optimizeLegibility',

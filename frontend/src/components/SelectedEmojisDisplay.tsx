@@ -8,7 +8,6 @@ export default function SelectedEmojisDisplay({
   dailyGameAnswer,
   onToggleHidden,
   onRemoveEmoji,
-  onReset,
   hints
 }: SelectedEmojisDisplayProps) {
   // Determine which emojis to display
@@ -69,7 +68,7 @@ export default function SelectedEmojisDisplay({
                   onToggleHidden(emoji);
                 }
               }}
-              className={`w-12 h-12 flex items-center justify-center text-3xl rounded-xl transition-colors
+              className={`w-12 h-12 flex items-center justify-center text-3xl rounded-xl transition-colors stackmoji-font
                 ${isGameComplete
                   ? `cursor-pointer ${buttonColor} ${isHidden ? 'opacity-50' : ''}`
                   : isRevealed
@@ -78,24 +77,12 @@ export default function SelectedEmojisDisplay({
                       ? 'theme-button hover:theme-button-hover border border-[var(--theme-border)]' 
                       : 'bg-transparent hover:bg-opacity-10 hover:theme-button-inactive-hover border border-[var(--theme-border)]'
                 }`}
-              data-emoji="true"
             >
               {emoji || '❓'}
             </div>
           );
         })}
       </div>
-
-      {/* Reset button */}
-      {!isGameComplete && emojis.some(emoji => emoji && !revealedEmojis.has(emoji)) && (
-        <button
-          onClick={onReset}
-          className="absolute right-0 w-12 h-12 flex items-center justify-center text-2xl theme-button hover:theme-button-hover rounded-xl transition-colors"
-          data-emoji="true"
-        >
-          🔄
-        </button>
-      )}
     </div>
   );
 } 

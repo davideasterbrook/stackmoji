@@ -47,8 +47,8 @@ def generate_daily_game():
 def lambda_handler(event, context):
     logger.info(f"{event=}")
     new_game_data = generate_daily_game()
-    emoji_font = EmojiFont("NotoColorEmoji-Subset.ttf")
-    emoji_font.gen_subset(new_game_data['emojis'], "NotoColorEmoji-Stackmoji-Subset.ttf")
+    emoji_font = EmojiFont("NotoColorEmoji-Regular.ttf")
+    emoji_font.gen_subset(new_game_data['emojis'], "/tmp/NotoColorEmoji-Stackmoji-Subset.ttf")
 
     logger.debug(f"{new_game_data=}")
 
@@ -58,10 +58,10 @@ def lambda_handler(event, context):
         Key='stackmoji-game-data.json',
         Body=json.dumps(new_game_data)
     )
-    s3_client.put_object(
+    s3_client.upload_file(
+        Filename='/tmp/NotoColorEmoji-Stackmoji-Subset.ttf',
         Bucket=os.environ['BUCKET_NAME'],
-        Key='NotoColorEmoji-Stackmoji-Subset.ttf',
-        Body=emoji_font.font.to_bytes()
+        Key='NotoColorEmoji-Stackmoji-Subset.ttf'
     )
 
     return {

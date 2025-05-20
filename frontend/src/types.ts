@@ -1,5 +1,5 @@
 export interface DailyGame {
-    options: string[];
+    emojis: string[];
     answer: string[];
     required_count: number;
 }
@@ -52,7 +52,7 @@ export interface GuessHistoryProps {
 }
 
 export interface GameControlsProps {
-  options: string[];
+  emojis: string[];
   selectedEmojis: string[];
   revealedEmojis: Set<string>;
   incorrectEmojis: Set<string>;

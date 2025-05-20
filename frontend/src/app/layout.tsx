@@ -3,7 +3,6 @@ import "./globals.css";
 import Script from 'next/script'
 import CookieConsent from '@/components/CookieConsent'
 import ThemeProvider from './ThemeProvider';
-import FontProvider from './EmojiFontProvider';
 import HeaderControls from '@/components/HeaderControls';
 
 export const metadata: Metadata = {
@@ -18,8 +17,15 @@ export const metadata: Metadata = {
   creator: 'Stackmoji',
   publisher: 'Stackmoji',
   icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-icon.png',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png', sizes: '192x192' },
+      { url: '/icon-512.png', type: 'image/png', sizes: '512x512' },
+    ],
+    shortcut: '/shortcut-icon.png',
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
   formatDetection: {
     telephone: false,
@@ -31,7 +37,7 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'Stackmoji | 🙈👀❓',
+    title: 'Stackmoji',
     description: 'Challenge yourself with a daily emoji puzzle. Guess which emojis are creating the stack and track your streak!',
     url: 'https://www.stackmoji.com',
     siteName: 'Stackmoji',
@@ -41,6 +47,14 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: 'Stackmoji puzzle game',
+        type: 'image/png',
+      },
+      {
+        url: '/icon-512.png',
+        width: 512,
+        height: 512,
+        alt: 'Stackmoji icon',
+        type: 'image/png',
       },
     ],
     locale: 'en_US',
@@ -48,7 +62,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Stackmoji | 🙈👀❓',
+    title: 'Stackmoji',
     description: 'Challenge yourself with a daily emoji puzzle. Guess which emojis are creating the stack and track your streak!',
     images: ['/og-image.png'],
     // creator: '@yourtwitterhandle',
@@ -71,17 +85,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Force load Noto font */}
-        <style dangerouslySetInnerHTML={{ __html: `
-          .force-font-load {
-            opacity: 0;
-            position: absolute;
-            pointer-events: none;
-            font-family: 'Noto Color Emoji';
-            visibility: hidden;
-          }
-        `}} />
-        
         {/* Minimal theme script - Just prevents flash by setting initial colors */}
         <script 
           dangerouslySetInnerHTML={{
@@ -97,16 +100,6 @@ export default function RootLayout({
                 document.documentElement.setAttribute('data-theme', theme);
               } catch (e) {
                 console.error('Theme initialization error:', e);
-              }
-
-              // Initialize font preference immediately
-              try {
-                const storedFont = localStorage.getItem('useNotoFont');
-                if (storedFont === 'true') {
-                  document.documentElement.classList.add('use-noto-font');
-                }
-              } catch (e) {
-                console.error('Font initialization error:', e);
               }
             `
           }}
@@ -175,15 +168,10 @@ export default function RootLayout({
         />
       </head>
       <body>
-        {/* Hidden element to force font load */}
-        <div className="force-font-load" aria-hidden="true">🎮</div>
-        
         <ThemeProvider>
-          <FontProvider>
-            <HeaderControls />
-            {children}
-            <CookieConsent />
-          </FontProvider>
+          <HeaderControls />
+          {children}
+          <CookieConsent />
         </ThemeProvider>
       </body>
     </html>

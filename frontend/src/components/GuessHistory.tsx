@@ -24,10 +24,10 @@ export default function GuessHistory({
     <div className="h-full flex flex-col items-center justify-between">
       <div className="flex flex-col items-center gap-4">
         <div className="text-3xl mb-2 flex items-center gap-4">
-          <span data-emoji="true">{didSolve ? '🥳' : '😭'}</span>
+          <span>{didSolve ? '🥳' : '😭'}</span>
           <span className="text-2xl">•</span>
           <div className="flex items-center gap-1">
-            <span data-emoji="true">🔥</span>
+            <span>🔥</span>
             <span>{streak}</span>
           </div>
         </div>
@@ -46,9 +46,7 @@ export default function GuessHistory({
                 return (
                   <div 
                     key={emojiIndex}
-                    className={`w-12 h-12 flex items-center justify-center text-3xl rounded-xl ${backgroundColor}`}
-                    data-emoji="true"
-                  >
+                    className={`w-12 h-12 flex items-center justify-center text-3xl rounded-xl ${backgroundColor} stackmoji-font`}>
                     {emoji}
                   </div>
                 );
@@ -60,29 +58,34 @@ export default function GuessHistory({
 
       <div className="flex items-center gap-8">
         <div className="flex flex-col items-center">
-          <div className="text-2xl mb-1" data-emoji="true">⏭️ 🎮</div>
+          <div className="text-2xl mb-1">⏭️ 🎮</div>
           <div className="text-xl font-mono">{timeUntilMidnight}</div>
         </div>
-        <button
-          onClick={onShare}
-          className="bg-[var(--theme-button)] hover:bg-[var(--theme-button-hover)] rounded-xl p-4 transition-colors flex items-center gap-2 w-28 justify-center gentle-pulse button-shine"
-          aria-label="Share your results"
-        >
-          <svg 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2"
+        <div className="relative group">
+          <button
+            onClick={onShare}
+            className="bg-[var(--theme-button)] hover:bg-[var(--theme-button-hover)] rounded-xl p-4 transition-colors flex items-center gap-2 w-28 justify-center gentle-pulse button-shine"
+            aria-label="Share your results"
           >
-            <circle cx="6" cy="12" r="3" />
-            <circle cx="18" cy="6" r="3" />
-            <circle cx="18" cy="18" r="3" />
-            <line x1="8.7" y1="12" x2="15.3" y2="7.5" />
-            <line x1="8.7" y1="12" x2="15.3" y2="16.5" />
-          </svg>
-        </button>
+            <svg 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2"
+            >
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="6" r="3" />
+              <circle cx="18" cy="18" r="3" />
+              <line x1="8.7" y1="12" x2="15.3" y2="7.5" />
+              <line x1="8.7" y1="12" x2="15.3" y2="16.5" />
+            </svg>
+          </button>
+          <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black/75 text-white px-2 py-1 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+            Share with your friends
+          </span>
+        </div>
       </div>
     </div>
   );
