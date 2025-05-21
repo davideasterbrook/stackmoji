@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emoji Display</title>
     <style>
+        @font-face {
+            font-family: 'Noto Color Emoji';
+            src: url('NotoColorEmoji-Regular.ttf') format('truetype');
+        }
+
         .emoji-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
@@ -13,6 +18,7 @@
         }
 
         .emoji {
+            font-family: 'Noto Color Emoji';
             font-size: 2em;
             text-align: center;
             padding: 10px;
@@ -60,7 +66,7 @@
             }, 2000);
         }
 
-        fetch('basic_emojis.json', {
+        fetch('base_emojis.json', {
             cache: 'no-store'
         })
             .then(response => response.json())
