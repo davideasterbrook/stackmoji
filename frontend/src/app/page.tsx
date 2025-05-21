@@ -63,6 +63,7 @@ export default function Home() {
 
   const [guesses, setGuesses] = useState<GuessData[]>([]);
   const [hints, setHints] = useState<HintData[]>([]);
+  const [hasUsedRevealThisRound, setHasUsedRevealThisRound] = useState(false);
 
   useEffect(() => {
     const savedStreak = localStorage.getItem('streak');
@@ -130,6 +131,7 @@ export default function Home() {
       setIsGameComplete(state.isGameComplete);
       setHasWon(state.hasWon);
       setHiddenEmojis(new Set(state.hiddenEmojis || []));
+      setHasUsedRevealThisRound(state.hasUsedRevealThisRound || false);
     }
   }, []);
 
@@ -146,11 +148,12 @@ export default function Home() {
       attemptsLeft,
       isGameComplete,
       hasWon,
-      hiddenEmojis: Array.from(hiddenEmojis)
+      hiddenEmojis: Array.from(hiddenEmojis),
+      hasUsedRevealThisRound
     };
     
     localStorage.setItem('gameState', JSON.stringify(gameState));
-  }, [selectedEmojis, revealedEmojis, incorrectEmojis, attemptsLeft, isGameComplete, hasWon, dailyGame, hiddenEmojis, guesses, hints]);
+  }, [selectedEmojis, revealedEmojis, incorrectEmojis, attemptsLeft, isGameComplete, hasWon, dailyGame, hiddenEmojis, guesses, hints, hasUsedRevealThisRound]);
 
   const handleEmojiSelect = (emoji: string) => {
     if (revealedEmojis.has(emoji) || incorrectEmojis.has(emoji)) return;
@@ -188,6 +191,9 @@ export default function Home() {
 
     // Update new state management
     setGuesses(prev => [...prev, newGuess]);
+    
+    // Reset reveal usage for next round
+    setHasUsedRevealThisRound(false);
 
     // Update existing state management
     const currentGuess = [...selectedEmojis];
@@ -330,6 +336,10 @@ export default function Home() {
             return newHidden;
           });
         } else {
+          // Only allow one reveal per round
+          if (hasUsedRevealThisRound) {
+            return;
+          }
           // For revealed but not hinted emojis, mark as hint and hide
           setHints(prev => [...prev, {
             emoji,
@@ -337,6 +347,7 @@ export default function Home() {
             timestamp: Date.now()
           }]);
           setHiddenEmojis(prev => new Set([...prev, emoji]));
+          setHasUsedRevealThisRound(true);
         }
       }
     } else {

@@ -26,6 +26,7 @@ export interface GameState {
   hasWon: boolean;
   hiddenEmojis: string[];
   selectedEmojis: string[];
+  hasUsedRevealThisRound: boolean;
 }
 
 export interface SelectedEmojisDisplayProps {
