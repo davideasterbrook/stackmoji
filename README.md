@@ -73,4 +73,4 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
  - Ads
  - clean up code
- - reduce reveals
+    - Clean up README

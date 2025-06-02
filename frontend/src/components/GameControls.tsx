@@ -31,7 +31,7 @@ export default function GameControls({
       <button
         onClick={onSubmitGuess}
         disabled={!isButtonEnabled}
-        className={`h-12 rounded-xl text-3xl transition-colors w-[13rem] mx-auto border border-[var(--theme-border)] stackmoji-font ${
+        className={`h-12 rounded-xl text-3xl transition-colors w-[13rem] mx-auto border border-[var(--theme-border)] ${
           isButtonEnabled
             ? `theme-button hover:theme-button-hover button-shine ${shouldPulse ? 'gentle-pulse' : ''}`
             : 'bg-transparent disabled:opacity-25 disabled:cursor-not-allowed'
