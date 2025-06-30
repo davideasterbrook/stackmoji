@@ -399,7 +399,7 @@ export default function Home() {
 
   return (
     <main 
-      className="h-screen w-screen p-4 flex items-center justify-center overflow-hidden theme-container"
+      className="h-screen w-screen p-4 flex items-center justify-center overflow-hidden theme-container overflow-y-auto"
       aria-label="Emoji Shadows Game"
       suppressHydrationWarning
     >
@@ -423,14 +423,14 @@ export default function Home() {
       <StackmojiAnnouncement />
 
       <div className="w-full max-w-md h-full flex flex-col gap-2">
-        <section className="rounded-2xl p-4 theme-panel h-[35%]" aria-label="Shadow Display">
+        <section className="rounded-2xl p-4 theme-panel min-h-[35%]" aria-label="Shadow Display">
           <ShadowDisplay
             emojis={dailyGame.answer}
             hiddenEmojis={hiddenEmojis}
           />
         </section>
 
-        <section className="theme-panel rounded-2xl p-4 h-[10%]" aria-label="Selected Emojis">
+        <section className="theme-panel rounded-2xl p-4 h-fit" aria-label="Selected Emojis">
           <SelectedEmojisDisplay
             emojis={selectedEmojis}
             revealedEmojis={revealedEmojis}
@@ -445,7 +445,7 @@ export default function Home() {
           />
         </section>
 
-        <section className="theme-panel rounded-2xl p-4 h-[50%]" aria-label={isGameComplete ? "Game Results" : "Game Controls"}>
+        <section className="theme-panel rounded-2xl p-4 h-fit" aria-label={isGameComplete ? "Game Results" : "Game Controls"}>
           {!isGameComplete ? (
             <GameControls
               emojis={dailyGame.emojis}

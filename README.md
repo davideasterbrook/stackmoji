@@ -74,3 +74,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
  - Ads
  - clean up code
     - Clean up README
+    - Make repo public
+
+- Rework logic everything is baked in the app = faster loading
+- Use repo CI/CD for automatic deployments

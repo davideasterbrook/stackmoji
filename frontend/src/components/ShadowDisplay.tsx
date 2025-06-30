@@ -7,7 +7,7 @@ export default function ShadowDisplay({
   hiddenEmojis = new Set(),
 }: Pick<ShadowDisplayProps, 'emojis' | 'hiddenEmojis'>) {
   return (
-    <div className="w-full h-full flex items-center justify-center">
+    <div className="relative w-full h-full flex items-center justify-center">
       {(emojis || []).map((emoji, index) => (
         !hiddenEmojis.has(emoji) && (
           <div

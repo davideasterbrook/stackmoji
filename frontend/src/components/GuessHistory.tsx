@@ -56,7 +56,7 @@ export default function GuessHistory({
         </div>
       </div>
 
-      <div className="flex items-center gap-8">
+      <div className="flex items-center gap-8 pt-8">
         <div className="flex flex-col items-center">
           <div className="text-2xl mb-1">⏭️ 🎮</div>
           <div className="text-xl font-mono">{timeUntilMidnight}</div>

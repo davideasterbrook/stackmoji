@@ -42,7 +42,7 @@ export default function SelectedEmojisDisplay({
             ? (wasMissing 
                 ? 'bg-[var(--theme-error)] border-none'
                 : wasHinted 
-                  ? 'bg-[var(--theme-hint)] border-none'           // Changed to use theme hint color
+                  ? 'bg-[var(--theme-hint)] border-none'
                   : 'bg-[var(--theme-success)] border-none')
             : (isRevealed
                 ? (wasHinted ? 'bg-[var(--theme-hint)] border-none' : 'bg-[var(--theme-success)] border-none')
