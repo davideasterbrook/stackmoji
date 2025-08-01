@@ -8,7 +8,7 @@ export default function NotFound() {
   const router = useRouter();
   
   // Use the same theme hook as privacy page
-  const { toggleTheme, isDarkMode } = useTheme();
+  const { toggleTheme, isDarkMode, isReady } = useTheme();
 
   const handleGoHome = () => {
     router.push('/');
@@ -36,13 +36,15 @@ export default function NotFound() {
           Back to Game
         </Link>
         
-        <button
-          onClick={toggleTheme}
-          className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
-          aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-        >
-          {isDarkMode ? '☀️' : '🌙'}
-        </button>
+        {isReady && (
+          <button
+            onClick={toggleTheme}
+            className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
+            aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {isDarkMode ? '☀️' : '🌙'}
+          </button>
+        )}
       </div>
 
       <h1 className="text-3xl font-bold mb-6">Page Not Found</h1>

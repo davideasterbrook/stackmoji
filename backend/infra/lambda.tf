@@ -16,6 +16,8 @@ resource "aws_lambda_function" "daily_generator" {
       POWERTOOLS_LOG_LEVEL = "INFO"
       POWERTOOLS_SERVICE_NAME = "${var.project_name}"
       BUCKET_NAME = aws_s3_bucket.game_data.id
+      FRONTEND_BUCKET_NAME = aws_s3_bucket.frontend.id
+      CLOUDFRONT_DISTRIBUTION_ID = aws_cloudfront_distribution.frontend.id
     }
   }
 }

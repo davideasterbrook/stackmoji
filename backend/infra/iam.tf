@@ -35,6 +35,21 @@ resource "aws_iam_role_policy" "lambda_ssm_policy" {
       {
         Effect = "Allow"
         Action = [
+          "s3:PutObject",
+          "s3:PutObjectAcl"
+        ]
+        Resource = "${aws_s3_bucket.frontend.arn}/*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "cloudfront:CreateInvalidation"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
           "ssm:PutParameter",
           "ssm:GetParameter"
         ]

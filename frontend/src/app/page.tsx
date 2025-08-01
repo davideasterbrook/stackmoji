@@ -46,7 +46,6 @@ function useTimeUntilMidnightUTC() {
 
 export default function Home() {
   const [dailyGame, setDailyGame] = useState<DailyGame | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedEmojis, setSelectedEmojis] = useState<string[]>([]);
   const [revealedEmojis, setRevealedEmojis] = useState<Set<string>>(new Set());
   const [incorrectEmojis, setIncorrectEmojis] = useState<Set<string>>(new Set());
@@ -80,7 +79,6 @@ export default function Home() {
   useEffect(() => {
     const fetchDailyGame = async () => {
       try {
-        setIsLoading(true);
         const { gameData, isNewGame } = await loadDailyGameData();
         
         if (!gameData) {
@@ -108,8 +106,6 @@ export default function Home() {
         setDailyGame(gameData);
       } catch (error) {
         console.error('Failed to fetch daily game:', error);
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -384,16 +380,6 @@ export default function Home() {
   useEffect(() => {
     trackPageView('/');
   }, []);
-
-  if (isLoading) {
-    return (
-      <main className="h-screen w-screen p-4 flex flex-col items-center justify-center overflow-hidden theme-container">
-        <div className="text-4xl animate-bounce mb-4" style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI Emoji"' }}>
-          🎮
-        </div>
-      </main>
-    );
-  }
 
   if (!dailyGame) return null;
 

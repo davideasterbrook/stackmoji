@@ -3,6 +3,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Game font - loaded as static asset */
+@font-face {
+  font-family: 'StackmojiGameFont';
+  src: url('/NotoColorEmoji-Stackmoji-Subset.ttf') format('truetype');
+  font-display: block; /* Hide text until font loads (prevents emoji fallback display) */
+}
+
 /* Default theme styles (before JavaScript loads) */
 html {
   background-color: var(--theme-bg, #181c21); /* Default to dark theme */
@@ -218,6 +225,7 @@ html, body, .theme-container, .theme-panel, .theme-button {
   --theme-success: var(--success);
   --theme-error: var(--error);
   --theme-hint: var(--hint);
+  --stackmoji-game-font: 'StackmojiGameFont';
   color-scheme: light dark;
 }
 

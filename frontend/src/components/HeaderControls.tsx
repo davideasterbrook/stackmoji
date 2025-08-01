@@ -3,24 +3,26 @@
 import { useTheme } from '@/app/ThemeProvider';
 
 export default function HeaderControls() {
-  const { toggleTheme, isDarkMode } = useTheme();
+  const { toggleTheme, isDarkMode, isReady } = useTheme();
 
   // Show sun emoji in dark mode (to switch to light), moon in light mode (to switch to dark)
   const themeIcon = isDarkMode ? '☀️' : '🌙';
 
   return (
     <header className="absolute top-4 left-4 flex gap-2">
-      <button
-        onClick={toggleTheme}
-        className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button relative group"
-        aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-        title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-      >
-        {themeIcon}
-        <span className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 bg-black/75 text-white px-2 py-1 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-          {isDarkMode ? 'Light mode' : 'Dark mode'}
-        </span>
-      </button>
+      {isReady && (
+        <button
+          onClick={toggleTheme}
+          className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button relative group"
+          aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+          title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {themeIcon}
+          <span className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 bg-black/75 text-white px-2 py-1 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            {isDarkMode ? 'Light mode' : 'Dark mode'}
+          </span>
+        </button>
+      )}
 
       {process.env.NODE_ENV === 'development' && (
         <button

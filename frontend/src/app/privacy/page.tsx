@@ -7,7 +7,7 @@ import { useTheme } from '../ThemeProvider';
 
 export default function PrivacyPolicy() {
   // Use our theme context hook
-  const { toggleTheme, isDarkMode } = useTheme();
+  const { toggleTheme, isDarkMode, isReady } = useTheme();
 
   useEffect(() => {
     trackPageView('/privacy');
@@ -35,13 +35,15 @@ export default function PrivacyPolicy() {
           Back to Game
         </Link>
         
-        <button
-          onClick={toggleTheme}
-          className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
-          aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-        >
-          {isDarkMode ? '☀️' : '🌙'}
-        </button>
+        {isReady && (
+          <button
+            onClick={toggleTheme}
+            className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
+            aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {isDarkMode ? '☀️' : '🌙'}
+          </button>
+        )}
       </div>
 
       <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>

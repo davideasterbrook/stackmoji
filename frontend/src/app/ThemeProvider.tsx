@@ -31,12 +31,14 @@ type ThemeContextType = {
   theme: string;
   toggleTheme: () => void;
   isDarkMode: boolean;
+  isReady: boolean;
 };
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: 'dark',
   toggleTheme: () => {},
   isDarkMode: true,
+  isReady: false,
 });
 
 export const useTheme = () => useContext(ThemeContext);
@@ -65,7 +67,7 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
   
   // Toggle theme function
   const toggleTheme = () => {
-    if (typeof window === 'undefined' || theme === null) return;
+    if (typeof window === 'undefined') return;
     
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     const themeConfig = newTheme === 'dark' ? DARK_THEME : LIGHT_THEME;
@@ -93,6 +95,7 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
     theme: theme || 'dark', // Default for initial render
     toggleTheme,
     isDarkMode,
+    isReady: theme !== null,
   };
   
   return (
