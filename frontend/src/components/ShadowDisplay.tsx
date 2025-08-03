@@ -5,7 +5,7 @@ import type { ShadowDisplayProps } from '@/types';
 export default function ShadowDisplay({ 
   emojis = [], 
   hiddenEmojis = new Set(),
-}: Pick<ShadowDisplayProps, 'emojis' | 'hiddenEmojis'>) {
+}: Pick<ShadowDisplayProps, 'emojis'> & { hiddenEmojis?: Set<string> }) {
   return (
     <div className="relative w-full h-full flex items-center justify-center">
       {(emojis || []).map((emoji, index) => (

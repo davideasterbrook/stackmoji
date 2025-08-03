@@ -16,20 +16,23 @@ export function useDailyGame(): UseDailyGameReturn {
   const [isNewGame, setIsNewGame] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchDailyGame = async () => {
       try {
-        setIsLoading(true);
-        setError(null);
-        
         const { gameData, isNewGame: newGame } = await loadDailyGameData();
+        
+        if (!isMounted) return;
         
         if (!gameData) {
           setError('Failed to load game data');
+          setIsLoading(false);
           return;
         }
 
         setDailyGame(gameData);
         setIsNewGame(newGame);
+        setIsLoading(false);
         
         if (newGame) {
           // Clear saved game state for new game
@@ -37,13 +40,18 @@ export function useDailyGame(): UseDailyGameReturn {
         }
       } catch (err) {
         console.error('Failed to fetch daily game:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch daily game');
-      } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setError(err instanceof Error ? err.message : 'Failed to fetch daily game');
+          setIsLoading(false);
+        }
       }
     };
 
     fetchDailyGame();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return {

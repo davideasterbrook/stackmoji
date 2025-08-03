@@ -2,21 +2,17 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useTheme } from './ThemeProvider';
 
 export default function NotFound() {
   const router = useRouter();
-  
-  // Use the same theme hook as privacy page
-  const { toggleTheme, isDarkMode, isReady } = useTheme();
 
   const handleGoHome = () => {
     router.push('/');
   };
 
   return (
-    <main className="max-w-4xl mx-auto p-6 theme-container" suppressHydrationWarning>
-      <div className="flex justify-between items-center mb-8">
+    <main className="max-w-4xl mx-auto p-6 pt-20 theme-container" suppressHydrationWarning>
+      <div className="mb-8">
         <Link 
           href="/" 
           className="inline-flex items-center text-blue-500 hover:text-blue-700"
@@ -35,16 +31,6 @@ export default function NotFound() {
           </svg>
           Back to Game
         </Link>
-        
-        {isReady && (
-          <button
-            onClick={toggleTheme}
-            className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
-            aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-          >
-            {isDarkMode ? '☀️' : '🌙'}
-          </button>
-        )}
       </div>
 
       <h1 className="text-3xl font-bold mb-6">Page Not Found</h1>

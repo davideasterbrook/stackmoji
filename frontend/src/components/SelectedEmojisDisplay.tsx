@@ -2,27 +2,27 @@ import type { SelectedEmojisDisplayProps } from '@/types';
 
 export default function SelectedEmojisDisplay({
   emojis,
-  revealedEmojis,
-  hiddenEmojis,
+  correctEmojis,
   isGameComplete,
   dailyGameAnswer,
   onToggleHidden,
   onRemoveEmoji,
-  hints
+  hints,
+  hiddenEmojis
 }: SelectedEmojisDisplayProps) {
   // Determine which emojis to display
   const displayEmojis = isGameComplete ? (() => {
     // Start with the last guess
     const lastGuess = [...emojis];
     
-    // Find emojis from solution that aren't revealed yet
-    const missingEmojis = dailyGameAnswer.filter(emoji => !revealedEmojis.has(emoji));
+    // Find emojis from solution that aren't correct yet
+    const missingEmojis = dailyGameAnswer.filter(emoji => !correctEmojis.has(emoji));
     let missingIndex = 0;
 
     // Fill in empty or incorrect spots with missing emojis
     return lastGuess.map(emoji => {
-      if (revealedEmojis.has(emoji)) {
-        return emoji; // Keep revealed emojis in their positions
+      if (correctEmojis.has(emoji)) {
+        return emoji; // Keep correct emojis in their positions
       } else {
         // Fill empty or incorrect spots with missing emojis
         return missingEmojis[missingIndex++] || emoji;
@@ -34,9 +34,9 @@ export default function SelectedEmojisDisplay({
     <div className="relative flex justify-center items-center h-full">
       <div className="flex gap-2">
         {displayEmojis.map((emoji, index) => {
-          const isRevealed = revealedEmojis.has(emoji);
-          const wasHinted = hints.some(h => h.emoji === emoji);
-          const wasMissing = isGameComplete && !isRevealed && dailyGameAnswer.includes(emoji);
+          const isCorrect = correctEmojis.has(emoji);
+          const wasHinted = emoji in hints;
+          const wasMissing = isGameComplete && !isCorrect && dailyGameAnswer.includes(emoji);
           
           const buttonColor = isGameComplete
             ? (wasMissing 
@@ -44,7 +44,7 @@ export default function SelectedEmojisDisplay({
                 : wasHinted 
                   ? 'bg-[var(--theme-hint)] border-none'
                   : 'bg-[var(--theme-success)] border-none')
-            : (isRevealed
+            : (isCorrect
                 ? (wasHinted ? 'bg-[var(--theme-hint)] border-none' : 'bg-[var(--theme-success)] border-none')
                 : '');
           
@@ -55,8 +55,8 @@ export default function SelectedEmojisDisplay({
               key={index}
               onClick={() => {
                 if (!isGameComplete) {
-                  if (isRevealed) {
-                    if (hints.some(h => h.emoji === emoji)) {
+                  if (isCorrect) {
+                    if (emoji in hints) {
                       onToggleHidden(emoji);
                     } else {
                       onToggleHidden(emoji);
@@ -71,7 +71,7 @@ export default function SelectedEmojisDisplay({
               className={`w-12 h-12 flex items-center justify-center text-3xl rounded-xl transition-colors stackmoji-font
                 ${isGameComplete
                   ? `cursor-pointer ${buttonColor} ${isHidden ? 'opacity-50' : ''}`
-                  : isRevealed
+                  : isCorrect
                     ? `cursor-pointer ${buttonColor} ${isHidden ? 'opacity-50' : ''}`
                     : emoji 
                       ? 'theme-button hover:theme-button-hover border border-[var(--theme-border)]' 

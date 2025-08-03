@@ -10,63 +10,30 @@ import StackmojiAnnouncement from '@/components/StackmojiAnnouncement';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 import { useDailyGame } from '@/hooks/useDailyGame';
-import { useGameState } from '@/hooks/useGameState';
-import { useStreak } from '@/hooks/useStreak';
-import { useTimeUntilMidnightUTC } from '@/hooks/useTimeUntilMidnight';
 import { useGameLogic } from '@/hooks/useGameLogic';
 import { useShare } from '@/hooks/useShare';
 import { useEmojiVisibility } from '@/hooks/useEmojiVisibility';
+import { useGame } from '@/providers/GameProvider';
 
 import { trackPageView } from '@/app/analytics';
 
-export default function Game() {
+function Game() {
+  console.log('Game rendered');
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
-
-  // Custom hooks for state management
   const { dailyGame, isLoading, error, isNewGame } = useDailyGame();
-  const gameState = useGameState();
-  const streak = useStreak();
-  const timeUntilMidnight = useTimeUntilMidnightUTC();
+  const { state, actions } = useGame();
 
-  // Game logic hook
-  const gameLogic = useGameLogic({
-    dailyGame,
-    ...gameState,
-    ...streak
-  });
+  const gameLogic = useGameLogic({ dailyGame, gameState: state, gameActions: actions });
+  const { handleShare } = useShare({ dailyGame, gameState: state });
+  const { handleToggleHidden } = useEmojiVisibility({ dailyGame, gameState: state, gameActions: actions });
 
-  // Sharing hook
-  const { handleShare } = useShare({
-    dailyGame,
-    guessHistory: gameState.guessHistory,
-    hasWon: gameState.hasWon,
-    streak: streak.streak,
-    hints: gameState.hints
-  });
-
-  // Emoji visibility hook
-  const { handleToggleHidden } = useEmojiVisibility({
-    revealedEmojis: gameState.revealedEmojis,
-    setHiddenEmojis: gameState.setHiddenEmojis,
-    hints: gameState.hints,
-    setHints: gameState.setHints,
-    guesses: gameState.guesses,
-    hasUsedRevealThisRound: gameState.hasUsedRevealThisRound,
-    setHasUsedRevealThisRound: gameState.setHasUsedRevealThisRound,
-    isGameComplete: gameState.isGameComplete
-  });
-
-  // Reset game state when new game is loaded
   useEffect(() => {
     if (isNewGame && dailyGame) {
-      gameState.resetGameState(dailyGame);
+      actions.resetGame(dailyGame);
+      actions.updateStreakOnStart();
     }
-    // ESLint warns about gameState dependency, but we only use gameState.resetGameState
-    // which is memoized with useCallback, so it's stable and safe to exclude gameState
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isNewGame, dailyGame, gameState.resetGameState]);
+  }, [isNewGame, dailyGame, actions]);
 
-  // Track page view
   useEffect(() => {
     trackPageView('/');
   }, []);
@@ -124,46 +91,43 @@ export default function Game() {
           <section className="rounded-2xl p-4 theme-panel min-h-[35%]" aria-label="Shadow Display">
             <ShadowDisplay
               emojis={dailyGame.answer}
-              hiddenEmojis={gameState.hiddenEmojis}
+              hiddenEmojis={state.hiddenEmojis}
             />
           </section>
 
           <section className="theme-panel rounded-2xl p-4 h-fit" aria-label="Selected Emojis">
             <SelectedEmojisDisplay
-              emojis={gameState.selectedEmojis}
-              revealedEmojis={gameState.revealedEmojis}
-              hiddenEmojis={gameState.hiddenEmojis}
-              isGameComplete={gameState.isGameComplete}
+              emojis={state.selectedEmojis}
+              correctEmojis={state.correctEmojis}
+              isGameComplete={state.isGameComplete}
               dailyGameAnswer={dailyGame.answer}
               onToggleHidden={handleToggleHidden}
               onRemoveEmoji={gameLogic.handleRemoveEmoji}
-              onReset={gameLogic.handleReset}
-              guesses={gameState.guesses}
-              hints={gameState.hints}
+              guesses={state.guesses}
+              hints={state.hints}
+              hiddenEmojis={state.hiddenEmojis}
             />
           </section>
 
-          <section className="theme-panel rounded-2xl p-4 h-fit" aria-label={gameState.isGameComplete ? "Game Results" : "Game Controls"}>
-            {!gameState.isGameComplete ? (
+          <section className="theme-panel rounded-2xl p-4 h-fit" aria-label={state.isGameComplete ? "Game Results" : "Game Controls"}>
+            {!state.isGameComplete ? (
               <GameControls
                 emojis={dailyGame.emojis}
-                selectedEmojis={gameState.selectedEmojis}
-                revealedEmojis={gameState.revealedEmojis}
-                incorrectEmojis={gameState.incorrectEmojis}
-                attemptsLeft={gameState.attemptsLeft}
+                selectedEmojis={state.selectedEmojis}
+                correctEmojis={state.correctEmojis}
+                incorrectEmojis={state.incorrectEmojis}
+                attemptsLeft={state.attemptsLeft}
                 requiredCount={dailyGame.required_count}
                 onEmojiSelect={gameLogic.handleEmojiSelect}
                 onSubmitGuess={gameLogic.handleCheckSolution}
               />
             ) : (
               <GuessHistory
-                guesses={gameState.guesses?.map(g => g.emojis) || []}
+                guesses={state.guesses}
                 correctEmojis={dailyGame.answer}
-                hints={gameState.hints}
-                timeUntilMidnight={timeUntilMidnight}
+                hints={state.hints}
                 onShare={handleShare}
-                streak={streak.streak}
-                hiddenEmojis={gameState.hiddenEmojis}
+                streak={state.streak}
               />
             )}
           </section>
@@ -172,3 +136,5 @@ export default function Game() {
     </ErrorBoundary>
   );
 }
+
+export default Game;

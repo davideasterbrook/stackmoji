@@ -22,7 +22,10 @@ export function useTimeUntilMidnightUTC(): string {
       return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
     };
 
+    // Set initial value
     setTimeLeft(calculateTimeLeft());
+    
+    // Set up interval
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);

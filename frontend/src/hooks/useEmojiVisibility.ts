@@ -1,71 +1,52 @@
-import { Dispatch, SetStateAction } from 'react';
-import { HintData, GuessData } from '@/types';
+import { useCallback } from 'react';
+import { DailyGame, GameState } from '@/types';
+
+interface GameActions {
+  addHint: (emoji: string, guessRound: number) => void;
+  toggleEmojiVisibility: (emoji: string) => void;
+}
 
 interface UseEmojiVisibilityParams {
-  revealedEmojis: Set<string>;
-  setHiddenEmojis: Dispatch<SetStateAction<Set<string>>>;
-  hints: HintData[];
-  setHints: Dispatch<SetStateAction<HintData[]>>;
-  guesses: GuessData[];  
-  hasUsedRevealThisRound: boolean;
-  setHasUsedRevealThisRound: Dispatch<SetStateAction<boolean>>;
-  isGameComplete: boolean;
+  dailyGame: DailyGame | null;
+  gameState: GameState;
+  gameActions: GameActions;
 }
 
 export function useEmojiVisibility({
-  revealedEmojis,
-  setHiddenEmojis,
-  hints,
-  setHints,
-  guesses,
-  hasUsedRevealThisRound,
-  setHasUsedRevealThisRound,
-  isGameComplete
+  dailyGame,
+  gameState,
+  gameActions
 }: UseEmojiVisibilityParams) {
 
-  const handleToggleHidden = (emoji: string) => {
+  const handleToggleHidden = useCallback((emoji: string) => {
+    const { isGameComplete, correctEmojis, hasUsedRevealThisRound, hints, guesses } = gameState;
+    if (!dailyGame) return;
+
     if (!isGameComplete) {
-      // During gameplay
-      if (revealedEmojis.has(emoji)) {
-        if (hints.some(h => h.emoji === emoji)) {
-          // For already hinted emojis, just toggle visibility
-          setHiddenEmojis((prev: Set<string>) => {
-            const newHidden = new Set(prev);
-            if (newHidden.has(emoji)) {
-              newHidden.delete(emoji);
-            } else {
-              newHidden.add(emoji);
-            }
-            return newHidden;
-          });
+      // During gameplay - only allow interacting with correct emojis
+      if (correctEmojis.has(emoji)) {
+        const isAlreadyHinted = emoji in hints;
+        
+        if (isAlreadyHinted) {
+          // Already hinted - just toggle visibility (no new hint)
+          gameActions.toggleEmojiVisibility(emoji);
         } else {
-          // Only allow one reveal per round
-          if (hasUsedRevealThisRound) {
-            return;
+          // Not hinted yet - add hint if we haven't used one this round
+          if (!hasUsedRevealThisRound) {
+            const currentRound = guesses.length + 1; // Current round (1-indexed)
+            gameActions.addHint(emoji, currentRound);
+            gameActions.toggleEmojiVisibility(emoji); // Also hide it
           }
-          // For revealed but not hinted emojis, mark as hint and hide
-          setHints((prev: HintData[]) => [...prev, {
-            emoji,
-            usedAtGuessNumber: guesses.length,
-            timestamp: Date.now()
-          }]);
-          setHiddenEmojis((prev: Set<string>) => new Set([...prev, emoji]));
-          setHasUsedRevealThisRound(true);
+          // If already used hint this round, do nothing
         }
       }
     } else {
-      // After game completion, just toggle visibility
-      setHiddenEmojis((prev: Set<string>) => {
-        const newHidden = new Set(prev);
-        if (newHidden.has(emoji)) {
-          newHidden.delete(emoji);
-        } else {
-          newHidden.add(emoji);
-        }
-        return newHidden;
-      });
+      // Post-game: allow toggling any correct emoji's visibility (no hint tracking)
+      if (dailyGame.answer.includes(emoji)) {
+        gameActions.toggleEmojiVisibility(emoji);
+      }
     }
-  };
+  }, [dailyGame, gameState, gameActions]);
 
   return { handleToggleHidden };
 }

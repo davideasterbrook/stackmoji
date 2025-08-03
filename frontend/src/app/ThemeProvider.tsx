@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
 
 // Theme values
 const DARK_THEME = {
@@ -48,25 +48,37 @@ interface ThemeProviderProps {
 }
 
 export default function ThemeProvider({ children }: ThemeProviderProps) {
-  // Start with null to prevent hydration mismatch
-  const [theme, setTheme] = useState<string | null>(null);
+  
+  // Initialize with a more stable default to prevent hydration issues
+  const [theme, setTheme] = useState<string>(() => {
+    // Only run this on client side
+    if (typeof window !== 'undefined') {
+      const storedTheme = localStorage.getItem('theme');
+      const docTheme = document.documentElement.getAttribute('data-theme');
+      return docTheme || storedTheme || 'dark';
+    }
+    return 'dark'; // Server-side default
+  });
+  
   const isDarkMode = theme === 'dark';
   
-  // Initialize theme from localStorage on mount
+  // Only update theme if it's actually different from what we have
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
     // Get theme from localStorage or data-theme attribute
     const storedTheme = localStorage.getItem('theme');
     const docTheme = document.documentElement.getAttribute('data-theme');
-    
-    // Use the document theme if available (set by our script), else use localStorage
     const initialTheme = docTheme || storedTheme || 'dark';
-    setTheme(initialTheme);
-  }, []);
+    
+    // Only set theme if it's different to prevent unnecessary re-renders
+    if (initialTheme !== theme) {
+      setTheme(initialTheme);
+    }
+  }, [theme]);
   
-  // Toggle theme function
-  const toggleTheme = () => {
+  // Toggle theme function (memoized to prevent re-renders)
+  const toggleTheme = useCallback(() => {
     if (typeof window === 'undefined') return;
     
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -89,14 +101,15 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
     
     // Store in localStorage
     localStorage.setItem('theme', newTheme);
-  };
+  }, [theme]);
   
-  const contextValue = {
-    theme: theme || 'dark', // Default for initial render
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    theme: theme,
     toggleTheme,
     isDarkMode,
-    isReady: theme !== null,
-  };
+    isReady: true, // Always ready now since we initialize properly
+  }), [theme, toggleTheme, isDarkMode]);
   
   return (
     <ThemeContext.Provider value={contextValue}>

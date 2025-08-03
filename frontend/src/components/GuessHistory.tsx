@@ -1,17 +1,20 @@
 import type { GuessHistoryProps } from '@/types';
+import { useTimeUntilMidnightUTC } from '@/hooks/useTimeUntilMidnight';
 
 export default function GuessHistory({
   guesses = [],
   correctEmojis,
   hints,
-  timeUntilMidnight,
   onShare,
   streak
 }: GuessHistoryProps) {
-  // Helper function to determine if an emoji was hinted before a specific guess
+  const timeUntilMidnight = useTimeUntilMidnightUTC();
+
+  // Helper function to determine if an emoji was hinted before or during a specific guess
   const wasHintedBeforeGuess = (emoji: string, guessIndex: number) => {
-    const hint = hints.find(h => h.emoji === emoji);
-    return hint ? hint.usedAtGuessNumber <= guessIndex : false;
+    // guessIndex is 0-indexed, but hints are stored with 1-indexed round numbers
+    // If hint was used in round N, it should be orange from round N onwards
+    return emoji in hints && hints[emoji] <= (guessIndex + 1);
   };
 
   // Check if the user solved the puzzle

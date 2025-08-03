@@ -1,7 +1,7 @@
 interface GameControlsProps {
   emojis: string[];
   selectedEmojis: string[];
-  revealedEmojis: Set<string>;
+  correctEmojis: Set<string>;
   incorrectEmojis: Set<string>;
   attemptsLeft: number;
   requiredCount: number;
@@ -12,7 +12,7 @@ interface GameControlsProps {
 export default function GameControls({
   emojis,
   selectedEmojis,
-  revealedEmojis,
+  correctEmojis,
   incorrectEmojis,
   attemptsLeft,
   requiredCount,
@@ -44,9 +44,9 @@ export default function GameControls({
           <button
             key={index}
             onClick={() => onEmojiSelect(emoji)}
-            disabled={revealedEmojis.has(emoji) || incorrectEmojis.has(emoji)}
+            disabled={correctEmojis.has(emoji) || incorrectEmojis.has(emoji)}
             className={`w-12 h-12 flex items-center justify-center text-3xl rounded-xl transition-colors border border-[var(--theme-border)] stackmoji-font ${
-              revealedEmojis.has(emoji)
+              correctEmojis.has(emoji)
                 ? 'success-bg border-none'
                 : incorrectEmojis.has(emoji)
                 ? 'error-bg border-none'

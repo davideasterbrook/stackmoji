@@ -216,6 +216,7 @@ Built with ❤️ using modern React architecture and AWS serverless infrastruct
 
 # Future Work (TODOs)
 - Remove old backend bucket
+- Bug with gamestate when root url is loaded
 - Ads
 - Improve SEO
 - Make repo public

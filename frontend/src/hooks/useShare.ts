@@ -1,30 +1,23 @@
-import { DailyGame, HintData } from '@/types';
+import { useCallback } from 'react';
+import { DailyGame, GameState } from '@/types';
 import { trackEvent } from '@/app/analytics';
 
 interface UseShareParams {
   dailyGame: DailyGame | null;
-  guessHistory: string[][];
-  hasWon: boolean;
-  streak: number;
-  hints: HintData[];
+  gameState: GameState;
 }
 
-export function useShare({
-  dailyGame,
-  guessHistory,
-  hasWon,
-  streak,
-  hints
-}: UseShareParams) {
+export function useShare({ dailyGame, gameState }: UseShareParams) {
   
-  const handleShare = async () => {
+  const handleShare = useCallback(async () => {
+    const { guesses, hasWon, streak, hints } = gameState;
     if (!dailyGame) return;
     
-    const resultEmojis = guessHistory
+    const resultEmojis = guesses
       .map((guess, guessIndex) => 
         guess.map(emoji => {
           if (dailyGame.answer.includes(emoji)) {
-            const wasHinted = hints.some(h => h.emoji === emoji && h.usedAtGuessNumber <= guessIndex);
+            const wasHinted = emoji in hints && hints[emoji] <= guessIndex;
             return wasHinted ? '🟧' : '🟩';
           }
           return '🟥';
@@ -33,7 +26,7 @@ export function useShare({
       .join('\n');
 
     const gameUrl = window.location.origin;
-    const shareText = `${hasWon ? '✅ '+ guessHistory.length : '❌'}/${3}\n🔥: ${streak}\n\n${resultEmojis}\n\n🎮: ${gameUrl}`;
+    const shareText = `${hasWon ? '✅ '+ guesses.length : '❌'}/${3}\n🔥: ${streak}\n\n${resultEmojis}\n\n🎮: ${gameUrl}`;
  
     try {
       if (navigator.share) {
@@ -43,7 +36,7 @@ export function useShare({
         trackEvent('share_results', {
           method: 'share_api',
           won: hasWon,
-          attempts: guessHistory.length,
+          attempts: guesses.length,
           streak: streak
         });
       } else {
@@ -52,7 +45,7 @@ export function useShare({
         trackEvent('share_results', {
           method: 'clipboard',
           won: hasWon,
-          attempts: guessHistory.length,
+          attempts: guesses.length,
           streak: streak
         });
       }
@@ -65,7 +58,7 @@ export function useShare({
         });
       }
     }
-  };
+  }, [dailyGame, gameState]);
 
   return { handleShare };
 }

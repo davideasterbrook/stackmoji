@@ -4,6 +4,7 @@ import Script from 'next/script'
 import CookieConsent from '@/components/CookieConsent'
 import ThemeProvider from './ThemeProvider';
 import HeaderControls from '@/components/HeaderControls';
+import { GameProvider } from '@/providers/GameProvider';
 
 export const metadata: Metadata = {
   title: {
@@ -11,11 +12,15 @@ export const metadata: Metadata = {
     template: '%s | Stackmoji',
   },
   description: 'Challenge yourself with a fun daily emoji puzzle. Guess which emojis are creating the stack and track your streak!',
-  keywords: 'emoji game, daily puzzle, emoji challenge',
+  keywords: 'emoji game, daily puzzle, emoji challenge, puzzle game, brain teaser, daily challenge',
   applicationName: 'Stackmoji',
   authors: [{ name: 'Stackmoji' }],
   creator: 'Stackmoji',
   publisher: 'Stackmoji',
+  category: 'Entertainment',
+  classification: 'Games',
+  referrer: 'origin-when-cross-origin',
+  generator: 'Next.js',
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -71,7 +76,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Stackmoji',
     description: 'Challenge yourself with a daily emoji puzzle. Guess which emojis are creating the stack and track your streak!',
-    images: ['/og-image.png'],
+    images: ['/og_image.png'],
     // creator: '@yourtwitterhandle',
   },
   robots: {
@@ -82,6 +87,10 @@ export const metadata: Metadata = {
       follow: true,
     },
   },
+  // Add Google site verification (replace with your actual code)
+  // verification: {
+  //   google: 'your-google-site-verification-code',
+  // },
 }
 
 export default function RootLayout({
@@ -149,11 +158,19 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               '@context': 'https://schema.org',
-              '@type': 'WebApplication',
+              '@type': ['WebApplication', 'Game'],
               'name': 'Stackmoji',
               'applicationCategory': 'GameApplication',
               'operatingSystem': 'Web',
-              'description': 'A daily emoji puzzle game. Guess which emojis are creating the stack each day.',
+              'description': 'A daily emoji puzzle game where players guess which emojis create shadow stacks. Challenge yourself with new puzzles every day and track your streak!',
+              'url': 'https://www.stackmoji.com',
+              'screenshot': 'https://www.stackmoji.com/screenshot.png',
+              'gameGenre': 'Puzzle',
+              'playMode': 'SinglePlayer',
+              'audience': {
+                '@type': 'Audience',
+                'audienceType': 'General'
+              },
               'offers': {
                 '@type': 'Offer',
                 'price': '0',
@@ -164,21 +181,25 @@ export default function RootLayout({
                 'ratingValue': '4.8',
                 'ratingCount': '156',
               },
-              'screenshot': 'https://www.stackmoji.com/screenshot.png',
-              'author': {
+              'creator': {
                 '@type': 'Organization',
                 'name': 'Stackmoji',
                 'url': 'https://www.stackmoji.com',
               },
+              'datePublished': '2025-01-01',
+              'inLanguage': 'en-US',
+              'isAccessibleForFree': true
             }),
           }}
         />
       </head>
       <body>
         <ThemeProvider>
-          <HeaderControls />
-          {children}
-          <CookieConsent />
+          <GameProvider>
+            <HeaderControls />
+            {children}
+            <CookieConsent />
+          </GameProvider>
         </ThemeProvider>
       </body>
     </html>
