@@ -215,8 +215,6 @@ Visit **[stackmoji.com](https://stackmoji.com)** to play the daily emoji puzzle!
 Built with ❤️ using modern React architecture and AWS serverless infrastructure.
 
 # Future Work (TODOs)
-- Remove old backend bucket
-- Bug with gamestate when root url is loaded
 - Ads
 - Improve SEO
 - Make repo public

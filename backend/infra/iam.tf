@@ -30,14 +30,6 @@ resource "aws_iam_role_policy" "lambda_ssm_policy" {
           "s3:PutObject",
           "s3:PutObjectAcl"
         ]
-        Resource = "${aws_s3_bucket.game_data.arn}/*"
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "s3:PutObject",
-          "s3:PutObjectAcl"
-        ]
         Resource = "${aws_s3_bucket.frontend.arn}/*"
       },
       {

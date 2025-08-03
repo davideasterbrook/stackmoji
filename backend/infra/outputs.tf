@@ -1,11 +1,3 @@
-output "bucket_name" {
-  value = aws_s3_bucket.game_data.id
-}
-
-output "bucket_domain_name" {
-  value = aws_s3_bucket.game_data.bucket_regional_domain_name
-}
-
 # ACM Certificate Validation Details
 output "certificate_validation_records" {
   value = {
