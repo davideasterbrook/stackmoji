@@ -38,7 +38,8 @@ export interface GuessHistoryProps {
   guesses: string[][];
   correctEmojis: string[];
   hints: HintData;  // Changed from array to object
-  onShare: () => void;
+  dailyGame: DailyGame;
+  hasWon: boolean;
   streak: number;
 }
 

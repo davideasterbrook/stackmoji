@@ -1,10 +1,15 @@
 import { useCallback } from 'react';
-import { DailyGame, GameState } from '@/types';
+import { DailyGame, HintData } from '@/types';
 import { trackEvent } from '@/app/analytics';
 
 interface UseShareParams {
   dailyGame: DailyGame | null;
-  gameState: GameState;
+  gameState: {
+    guesses: string[][];
+    hasWon: boolean;
+    streak: number;
+    hints: HintData;
+  };
 }
 
 export function useShare({ dailyGame, gameState }: UseShareParams) {
@@ -17,7 +22,7 @@ export function useShare({ dailyGame, gameState }: UseShareParams) {
       .map((guess, guessIndex) => 
         guess.map(emoji => {
           if (dailyGame.answer.includes(emoji)) {
-            const wasHinted = emoji in hints && hints[emoji] <= guessIndex;
+            const wasHinted = emoji in hints && hints[emoji] <= guessIndex+1;
             return wasHinted ? '🟧' : '🟩';
           }
           return '🟥';

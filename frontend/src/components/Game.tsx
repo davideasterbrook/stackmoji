@@ -11,7 +11,6 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 
 import { useDailyGame } from '@/hooks/useDailyGame';
 import { useGameLogic } from '@/hooks/useGameLogic';
-import { useShare } from '@/hooks/useShare';
 import { useEmojiVisibility } from '@/hooks/useEmojiVisibility';
 import { useGame } from '@/providers/GameProvider';
 
@@ -24,7 +23,6 @@ function Game() {
   const { state, actions } = useGame();
 
   const gameLogic = useGameLogic({ dailyGame, gameState: state, gameActions: actions });
-  const { handleShare } = useShare({ dailyGame, gameState: state });
   const { handleToggleHidden } = useEmojiVisibility({ dailyGame, gameState: state, gameActions: actions });
 
   useEffect(() => {
@@ -126,7 +124,8 @@ function Game() {
                 guesses={state.guesses}
                 correctEmojis={dailyGame.answer}
                 hints={state.hints}
-                onShare={handleShare}
+                dailyGame={dailyGame}
+                hasWon={state.hasWon}
                 streak={state.streak}
               />
             )}

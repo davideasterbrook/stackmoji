@@ -1,14 +1,26 @@
 import type { GuessHistoryProps } from '@/types';
 import { useTimeUntilMidnightUTC } from '@/hooks/useTimeUntilMidnight';
+import { useShare } from '@/hooks/useShare';
 
 export default function GuessHistory({
   guesses = [],
   correctEmojis,
   hints,
-  onShare,
+  dailyGame,
+  hasWon,
   streak
 }: GuessHistoryProps) {
   const timeUntilMidnight = useTimeUntilMidnightUTC();
+  
+  // Create minimal gameState object for useShare hook
+  const gameState = {
+    guesses,
+    hasWon,
+    streak,
+    hints
+  };
+  
+  const { handleShare } = useShare({ dailyGame, gameState });
 
   // Helper function to determine if an emoji was hinted before or during a specific guess
   const wasHintedBeforeGuess = (emoji: string, guessIndex: number) => {
@@ -66,7 +78,7 @@ export default function GuessHistory({
         </div>
         <div className="relative group">
           <button
-            onClick={onShare}
+            onClick={handleShare}
             className="bg-[var(--theme-button)] hover:bg-[var(--theme-button-hover)] rounded-xl p-4 transition-colors flex items-center gap-2 w-28 justify-center gentle-pulse button-shine"
             aria-label="Share your results"
           >
