@@ -6,6 +6,11 @@ export AWS_PROFILE=launchcraft-admin
 BUCKET_NAME=$(cd ../backend/infra && terraform output -raw frontend_bucket_name)
 DISTRIBUTION_ID=$(cd ../backend/infra && terraform output -raw cloudfront_distribution_id)
 
+# Download latest files from production
+echo "Downloading latest game data and font from stackmoji.com..."
+curl -f -o public/stackmoji-game-data.json https://stackmoji.com/stackmoji-game-data.json || echo "Warning: Failed to download game data, using local copy"
+curl -f -o public/NotoColorEmoji-Stackmoji-Subset.ttf https://stackmoji.com/NotoColorEmoji-Stackmoji-Subset.ttf || echo "Warning: Failed to download font, using local copy"
+
 # Build the Next.js app
 echo "Building Next.js application..."
 npm install
