@@ -10,7 +10,6 @@ interface CachedGameData {
 // Font is now loaded via CSS @font-face declaration in globals.css
 
 export async function loadDailyGameData(): Promise<{ gameData: DailyGame | null; isNewGame: boolean }> {
-  console.log('loadDailyGameData called');
   if (typeof window === 'undefined') return { gameData: null, isNewGame: false };
 
   const lastFetch = localStorage.getItem('lastFetchTime');

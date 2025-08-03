@@ -17,7 +17,6 @@ import { useGame } from '@/providers/GameProvider';
 import { trackPageView } from '@/app/analytics';
 
 function Game() {
-  console.log('Game rendered');
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const { dailyGame, isLoading, error, isNewGame } = useDailyGame();
   const { state, actions } = useGame();
