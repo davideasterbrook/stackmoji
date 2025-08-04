@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import ShadowDisplay from '@/components/ShadowDisplay';
 import SelectedEmojisDisplay from '@/components/SelectedEmojisDisplay';
 import GameControls from '@/components/GameControls';
 import GuessHistory from '@/components/GuessHistory';
-import HelpModal from '@/components/HelpModal';
 import StackmojiAnnouncement from '@/components/StackmojiAnnouncement';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
@@ -15,9 +14,9 @@ import { useEmojiVisibility } from '@/hooks/useEmojiVisibility';
 import { useGame } from '@/providers/GameProvider';
 
 import { trackPageView } from '@/app/analytics';
+import Link from 'next/link';
 
 function Game() {
-  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const { dailyGame, isLoading, error, isNewGame } = useDailyGame();
   const { state, actions } = useGame();
 
@@ -68,19 +67,15 @@ function Game() {
         suppressHydrationWarning
       >
         <nav className="absolute top-4 right-4">
-          <button
-            onClick={() => setIsHelpModalOpen(true)}
-            className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button"
-            aria-label="Help"
+          <Link
+            href="/how-to-play"
+            className="w-12 h-12 flex items-center justify-center text-2xl rounded-full theme-button hover:scale-105 transition-transform"
+            aria-label="How to Play"
+            title="How to Play"
           >
             ℹ️
-          </button>
+          </Link>
         </nav>
-
-        <HelpModal 
-          isOpen={isHelpModalOpen}
-          onClose={() => setIsHelpModalOpen(false)}
-        />
         
         <StackmojiAnnouncement />
 

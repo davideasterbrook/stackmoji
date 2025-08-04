@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     template: '%s | Stackmoji',
   },
   description: 'Challenge yourself with a fun daily emoji puzzle. Guess which emojis are creating the stack and track your streak!',
-  keywords: 'emoji game, daily puzzle, emoji challenge, puzzle game, brain teaser, daily challenge',
+  keywords: 'emoji game, daily puzzle, emoji challenge, puzzle game, brain teaser, daily challenge, wordle alternative, brain training, emoji puzzle solver, daily brain game, emoji guessing game, puzzle solving, mind games',
   applicationName: 'Stackmoji',
   authors: [{ name: 'Stackmoji' }],
   creator: 'Stackmoji',
@@ -87,10 +87,6 @@ export const metadata: Metadata = {
       follow: true,
     },
   },
-  // Add Google site verification (replace with your actual code)
-  // verification: {
-  //   google: 'your-google-site-verification-code',
-  // },
 }
 
 export default function RootLayout({
