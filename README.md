@@ -204,7 +204,7 @@ This project showcases modern React architecture and serverless AWS patterns. Th
 
 ## 📝 License
 
-This project is private and not currently accepting contributions.
+This project is open source and welcomes contributions! Please see the issues page for areas where you can help.
 
 ---
 
@@ -214,8 +214,3 @@ Visit **[stackmoji.com](https://stackmoji.com)** to play the daily emoji puzzle!
 
 Built with ❤️ using modern React architecture and AWS serverless infrastructure.
 
-# Future Work (TODOs)
-- Ads
-- Improve SEO
-- Make repo public
-- Use repo CI/CD for automatic deployments
