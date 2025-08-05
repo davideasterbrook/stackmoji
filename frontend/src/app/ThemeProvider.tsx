@@ -2,31 +2,6 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
 
-// Theme values
-const DARK_THEME = {
-  name: 'dark',
-  colors: {
-    bg: '#181c21',
-    panel: '#252a32',
-    text: '#c8cfd7',
-    button: '#3d4654',
-    buttonHover: '#374151',
-    border: '#3d4654',
-  }
-};
-
-const LIGHT_THEME = {
-  name: 'light',
-  colors: {
-    bg: '#f8fafc',
-    panel: '#f1f5f9',
-    text: '#3d4654',
-    button: '#dae5f2',
-    buttonHover: '#cbd5e1',
-    border: '#c8cfd7',
-  }
-};
-
 type ThemeContextType = {
   theme: string;
   toggleTheme: () => void;
@@ -49,55 +24,52 @@ interface ThemeProviderProps {
 
 export default function ThemeProvider({ children }: ThemeProviderProps) {
   
-  // Initialize with a more stable default to prevent hydration issues
-  const [theme, setTheme] = useState<string>(() => {
-    // Only run this on client side
-    if (typeof window !== 'undefined') {
-      const storedTheme = localStorage.getItem('theme');
-      const docTheme = document.documentElement.getAttribute('data-theme');
-      return docTheme || storedTheme || 'dark';
-    }
-    return 'dark'; // Server-side default
-  });
+  // Initialize with server-safe default to prevent hydration mismatch
+  const [theme, setTheme] = useState<string>('dark');
+  const [isReady, setIsReady] = useState(false);
   
   const isDarkMode = theme === 'dark';
   
-  // Only update theme if it's actually different from what we have
+  // Determine initial theme on client mount
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
-    // Get theme from localStorage or data-theme attribute
     const storedTheme = localStorage.getItem('theme');
-    const docTheme = document.documentElement.getAttribute('data-theme');
-    const initialTheme = docTheme || storedTheme || 'dark';
     
-    // Only set theme if it's different to prevent unnecessary re-renders
-    if (initialTheme !== theme) {
-      setTheme(initialTheme);
+    let initialTheme: string;
+    if (storedTheme) {
+      // User has a saved preference
+      initialTheme = storedTheme;
+    } else {
+      // New user - use browser preference, fallback to dark
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      initialTheme = prefersDark ? 'dark' : 'light';
+      // Save the detected preference
+      localStorage.setItem('theme', initialTheme);
     }
-  }, [theme]);
+    
+    // Apply theme by setting data-theme attribute (CSS handles the rest)
+    document.documentElement.setAttribute('data-theme', initialTheme);
+    
+    setTheme(initialTheme);
+    setIsReady(true);
+  }, []);
+  
+  // Apply theme whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && isReady) {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+  }, [theme, isReady]);
   
   // Toggle theme function (memoized to prevent re-renders)
   const toggleTheme = useCallback(() => {
     if (typeof window === 'undefined') return;
     
     const newTheme = theme === 'dark' ? 'light' : 'dark';
-    const themeConfig = newTheme === 'dark' ? DARK_THEME : LIGHT_THEME;
     
-    // Update state
+    // Update state (useEffect will handle DOM updates)
     setTheme(newTheme);
-    
-    // Apply theme directly to document
-    Object.entries(themeConfig.colors).forEach(([key, value]) => {
-      const cssVarName = `--theme-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
-      document.documentElement.style.setProperty(cssVarName, value);
-    });
-    
-    document.documentElement.style.backgroundColor = themeConfig.colors.bg;
-    document.documentElement.style.color = themeConfig.colors.text;
-    document.documentElement.classList.remove(theme === 'dark' ? 'dark-theme' : 'light-theme');
-    document.documentElement.classList.add(`${newTheme}-theme`);
-    document.documentElement.setAttribute('data-theme', newTheme);
     
     // Store in localStorage
     localStorage.setItem('theme', newTheme);
@@ -108,8 +80,8 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
     theme: theme,
     toggleTheme,
     isDarkMode,
-    isReady: true, // Always ready now since we initialize properly
-  }), [theme, toggleTheme, isDarkMode]);
+    isReady,
+  }), [theme, toggleTheme, isDarkMode, isReady]);
   
   return (
     <ThemeContext.Provider value={contextValue}>
