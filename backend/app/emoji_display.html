@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Display</title>
+    <style>
+        @font-face {
+            font-family: 'Noto Color Emoji';
+            src: url('NotoColorEmoji-Regular.ttf') format('truetype');
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 10px;
+            padding: 20px;
+        }
+
+        .emoji {
+            font-family: 'Noto Color Emoji';
+            font-size: 2em;
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .emoji:hover {
+            transform: scale(1.2);
+            background-color: #f5f5f5;
+        }
+
+        /* Add styles for the copy feedback */
+        .copy-feedback {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: none;
+            animation: fadeOut 2s ease-in-out;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="emoji-grid" id="emojiContainer"></div>
+    <div id="copyFeedback" class="copy-feedback">Copied to clipboard!</div>
+
+    <script>
+        function showCopyFeedback() {
+            const feedback = document.getElementById('copyFeedback');
+            feedback.style.display = 'block';
+            setTimeout(() => {
+                feedback.style.display = 'none';
+            }, 2000);
+        }
+
+        fetch('base_emojis.json', {
+            cache: 'no-store'
+        })
+            .then(response => response.json())
+            .then(emojis => {
+                const container = document.getElementById('emojiContainer');
+                emojis.flat().forEach(emoji => {
+                    const div = document.createElement('div');
+                    div.className = 'emoji';
+                    div.textContent = emoji;
+                    div.title = `Unicode: ${[...emoji].map(char => 'U+' + char.codePointAt(0).toString(16).toUpperCase()).join(' ')}`;
+                    
+                    div.addEventListener('click', async () => {
+                        const textToCopy = `"${emoji}"`;
+                        try {
+                            await navigator.clipboard.writeText(textToCopy);
+                            showCopyFeedback();
+                        } catch (err) {
+                            console.error('Failed to copy:', err);
+                        }
+                    });
+                    
+                    container.appendChild(div);
+                });
+            })
+            .catch(error => console.error('Error loading emojis:', error));
+    </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# robots.txt for stackmoji.com
+User-agent: *
+Allow: /
+
+# Protect any API endpoints if applicable
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://www.stackmoji.com/sitemap.xml 
