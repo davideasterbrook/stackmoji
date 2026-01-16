@@ -121,14 +121,17 @@ export default function RootLayout({
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag() { dataLayer.push(arguments); }
-            
+
             // Default consent to denied until user provides consent
+            // With ads_data_redaction enabled, cookieless pings are sent for basic analytics
             gtag('consent', 'default', {
               'analytics_storage': 'denied',
               'ad_storage': 'denied',
               'functionality_storage': 'denied',
               'personalization_storage': 'denied',
-              'security_storage': 'granted'
+              'security_storage': 'granted',
+              'ads_data_redaction': true,
+              'url_passthrough': false
             });
           `}
         </Script>
